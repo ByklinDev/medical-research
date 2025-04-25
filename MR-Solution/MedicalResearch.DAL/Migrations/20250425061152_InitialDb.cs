@@ -24,24 +24,11 @@ namespace MedicalResearch.DAL.Migrations
                     City = table.Column<string>(type: "text", nullable: false),
                     AddressOne = table.Column<string>(type: "text", nullable: false),
                     AddressTwo = table.Column<string>(type: "text", nullable: true),
-                    Phone = table.Column<string>(type: "text", nullable: false)
+                    Phone = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clinics", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Containers",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Containers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -55,6 +42,19 @@ namespace MedicalResearch.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DosageForms", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MedicineContainers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MedicineContainers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -110,12 +110,13 @@ namespace MedicalResearch.DAL.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FirstName = table.Column<string>(type: "text", nullable: true),
-                    LastName = table.Column<string>(type: "text", nullable: true),
-                    Initials = table.Column<string>(type: "text", nullable: true),
+                    FirstName = table.Column<string>(type: "text", nullable: false),
+                    LastName = table.Column<string>(type: "text", nullable: false),
+                    Initials = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     State = table.Column<int>(type: "integer", nullable: false),
-                    Password = table.Column<string>(type: "text", nullable: true),
+                    Password = table.Column<string>(type: "text", nullable: false),
+                    PaswordSalt = table.Column<byte[]>(type: "bytea", nullable: false),
                     ClinicId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
@@ -137,7 +138,7 @@ namespace MedicalResearch.DAL.Migrations
                     Description = table.Column<string>(type: "text", nullable: false),
                     ExpireAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Amount = table.Column<int>(type: "integer", nullable: true),
+                    Amount = table.Column<int>(type: "integer", nullable: false),
                     MedicineTypeId = table.Column<int>(type: "integer", nullable: false),
                     ContainerId = table.Column<int>(type: "integer", nullable: false),
                     DosageFormId = table.Column<int>(type: "integer", nullable: false),
@@ -147,15 +148,15 @@ namespace MedicalResearch.DAL.Migrations
                 {
                     table.PrimaryKey("PK_Medicines", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Medicines_Containers_ContainerId",
-                        column: x => x.ContainerId,
-                        principalTable: "Containers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Medicines_DosageForms_DosageFormId",
                         column: x => x.DosageFormId,
                         principalTable: "DosageForms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Medicines_MedicineContainers_ContainerId",
+                        column: x => x.ContainerId,
+                        principalTable: "MedicineContainers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -191,7 +192,7 @@ namespace MedicalResearch.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClinicsStocks",
+                name: "ClinicsStockMedicines",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -202,15 +203,15 @@ namespace MedicalResearch.DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClinicsStocks", x => x.Id);
+                    table.PrimaryKey("PK_ClinicsStockMedicines", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClinicsStocks_Clinics_ClinicId",
+                        name: "FK_ClinicsStockMedicines_Clinics_ClinicId",
                         column: x => x.ClinicId,
                         principalTable: "Clinics",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClinicsStocks_Medicines_MedicineId",
+                        name: "FK_ClinicsStockMedicines_Medicines_MedicineId",
                         column: x => x.MedicineId,
                         principalTable: "Medicines",
                         principalColumn: "Id",
@@ -249,17 +250,19 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Visits",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ClinicId = table.Column<int>(type: "integer", nullable: false),
                     PatientId = table.Column<int>(type: "integer", nullable: false),
+                    PatientClinicId = table.Column<int>(type: "integer", nullable: false),
                     DateOfVisit = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     MedicineId = table.Column<int>(type: "integer", nullable: false),
-                    PatientClinicId = table.Column<int>(type: "integer", nullable: false),
                     NumberOfVisit = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Visits", x => new { x.PatientId, x.ClinicId, x.DateOfVisit, x.MedicineId });
+                    table.PrimaryKey("PK_Visits", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Visits_Clinics_ClinicId",
                         column: x => x.ClinicId,
@@ -287,39 +290,27 @@ namespace MedicalResearch.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClinicStockSupply",
+                name: "ClinicStockMedicineSupply",
                 columns: table => new
                 {
-                    ClinicStocksId = table.Column<int>(type: "integer", nullable: false),
+                    ClinicStockMedicinesId = table.Column<int>(type: "integer", nullable: false),
                     SuppliesId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClinicStockSupply", x => new { x.ClinicStocksId, x.SuppliesId });
+                    table.PrimaryKey("PK_ClinicStockMedicineSupply", x => new { x.ClinicStockMedicinesId, x.SuppliesId });
                     table.ForeignKey(
-                        name: "FK_ClinicStockSupply_ClinicsStocks_ClinicStocksId",
-                        column: x => x.ClinicStocksId,
-                        principalTable: "ClinicsStocks",
+                        name: "FK_ClinicStockMedicineSupply_ClinicsStockMedicines_ClinicStock~",
+                        column: x => x.ClinicStockMedicinesId,
+                        principalTable: "ClinicsStockMedicines",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClinicStockSupply_Supplies_SuppliesId",
+                        name: "FK_ClinicStockMedicineSupply_Supplies_SuppliesId",
                         column: x => x.SuppliesId,
                         principalTable: "Supplies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "Containers",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "box" },
-                    { 2, "bottle" },
-                    { 3, "blister" },
-                    { 4, "ampoule" },
-                    { 5, "vial" }
                 });
 
             migrationBuilder.InsertData(
@@ -332,6 +323,18 @@ namespace MedicalResearch.DAL.Migrations
                     { 3, "syrup" },
                     { 4, "suspension" },
                     { 5, "oinment" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "MedicineContainers",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "box" },
+                    { 2, "bottle" },
+                    { 3, "blister" },
+                    { 4, "ampoule" },
+                    { 5, "vial" }
                 });
 
             migrationBuilder.InsertData(
@@ -353,14 +356,13 @@ namespace MedicalResearch.DAL.Migrations
                     { 1, "Admin" },
                     { 2, "Sponsor" },
                     { 3, "Researcher" },
-                    { 4, "Manager" },
-                    { 5, "Anonymous" }
+                    { 4, "Manager" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "ClinicId", "Email", "FirstName", "Initials", "LastName", "Password", "State" },
-                values: new object[] { 1, null, "byklin@list.ru", "Admin", null, null, "qd3Ju3lhxMRBtD9AGIgm6ni1iykJeYib0HKyGOpWEZM=", 0 });
+                columns: new[] { "Id", "ClinicId", "Email", "FirstName", "Initials", "LastName", "Password", "PaswordSalt", "State" },
+                values: new object[] { 1, null, "byklin@list.ru", "Admin", "", "", "ma+sYwb8QHKHMsfJtQ3l3sLZ4OfAKd7dtnxOAP/KCTA=", new byte[] { 84, 16, 42, 85, 56, 114, 88, 212, 43, 27, 186, 97, 62, 131, 73, 15, 91, 164, 87, 147, 228, 98, 236, 141, 140, 237, 150, 238, 184, 53, 251, 139 }, 0 });
 
             migrationBuilder.InsertData(
                 table: "UserRole",
@@ -368,19 +370,37 @@ namespace MedicalResearch.DAL.Migrations
                 values: new object[] { 1, 1 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClinicsStocks_ClinicId",
-                table: "ClinicsStocks",
+                name: "IX_Clinics_Name",
+                table: "Clinics",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClinicsStockMedicines_ClinicId",
+                table: "ClinicsStockMedicines",
                 column: "ClinicId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClinicsStocks_MedicineId",
-                table: "ClinicsStocks",
+                name: "IX_ClinicsStockMedicines_MedicineId",
+                table: "ClinicsStockMedicines",
                 column: "MedicineId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClinicStockSupply_SuppliesId",
-                table: "ClinicStockSupply",
+                name: "IX_ClinicStockMedicineSupply_SuppliesId",
+                table: "ClinicStockMedicineSupply",
                 column: "SuppliesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DosageForms_Name",
+                table: "DosageForms",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MedicineContainers_Name",
+                table: "MedicineContainers",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Medicines_ContainerId",
@@ -398,9 +418,21 @@ namespace MedicalResearch.DAL.Migrations
                 column: "MedicineTypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MedicinesTypes_Name",
+                table: "MedicinesTypes",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Patients_ClinicId",
                 table: "Patients",
                 column: "ClinicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Roles_Name",
+                table: "Roles",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Supplies_ClinicId",
@@ -453,7 +485,7 @@ namespace MedicalResearch.DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ClinicStockSupply");
+                name: "ClinicStockMedicineSupply");
 
             migrationBuilder.DropTable(
                 name: "UserRole");
@@ -462,7 +494,7 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Visits");
 
             migrationBuilder.DropTable(
-                name: "ClinicsStocks");
+                name: "ClinicsStockMedicines");
 
             migrationBuilder.DropTable(
                 name: "Supplies");
@@ -483,10 +515,10 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Clinics");
 
             migrationBuilder.DropTable(
-                name: "Containers");
+                name: "DosageForms");
 
             migrationBuilder.DropTable(
-                name: "DosageForms");
+                name: "MedicineContainers");
 
             migrationBuilder.DropTable(
                 name: "MedicinesTypes");

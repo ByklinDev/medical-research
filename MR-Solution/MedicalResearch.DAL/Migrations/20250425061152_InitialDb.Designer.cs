@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedicalResearch.DAL.Migrations
 {
     [DbContext(typeof(MedicalResearchDbContext))]
-    [Migration("20250423183332_InitialDb")]
+    [Migration("20250425061152_InitialDb")]
     partial class InitialDb
     {
         /// <inheritdoc />
@@ -25,19 +25,19 @@ namespace MedicalResearch.DAL.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ClinicStockSupply", b =>
+            modelBuilder.Entity("ClinicStockMedicineSupply", b =>
                 {
-                    b.Property<int>("ClinicStocksId")
+                    b.Property<int>("ClinicStockMedicinesId")
                         .HasColumnType("integer");
 
                     b.Property<int>("SuppliesId")
                         .HasColumnType("integer");
 
-                    b.HasKey("ClinicStocksId", "SuppliesId");
+                    b.HasKey("ClinicStockMedicinesId", "SuppliesId");
 
                     b.HasIndex("SuppliesId");
 
-                    b.ToTable("ClinicStockSupply");
+                    b.ToTable("ClinicStockMedicineSupply");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.Clinic", b =>
@@ -64,15 +64,17 @@ namespace MedicalResearch.DAL.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Clinics");
                 });
 
-            modelBuilder.Entity("MedicalResearch.Domain.Models.ClinicStock", b =>
+            modelBuilder.Entity("MedicalResearch.Domain.Models.ClinicStockMedicine", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -95,66 +97,25 @@ namespace MedicalResearch.DAL.Migrations
 
                     b.HasIndex("MedicineId");
 
-                    b.ToTable("ClinicsStocks");
-                });
-
-            modelBuilder.Entity("MedicalResearch.Domain.Models.Container", b =>
-                {
-                    b.Property<int?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Containers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "box"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "bottle"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "blister"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "ampoule"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "vial"
-                        });
+                    b.ToTable("ClinicsStockMedicines");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.DosageForm", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("DosageForms");
 
@@ -194,14 +155,13 @@ namespace MedicalResearch.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("Amount")
+                    b.Property<int>("Amount")
                         .HasColumnType("integer");
 
                     b.Property<int>("ContainerId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("CreatedAt")
-                        .IsRequired()
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -211,8 +171,7 @@ namespace MedicalResearch.DAL.Migrations
                     b.Property<int>("DosageFormId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("ExpireAt")
-                        .IsRequired()
+                    b.Property<DateTime>("ExpireAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("MedicineTypeId")
@@ -232,19 +191,69 @@ namespace MedicalResearch.DAL.Migrations
                     b.ToTable("Medicines");
                 });
 
-            modelBuilder.Entity("MedicalResearch.Domain.Models.MedicineType", b =>
+            modelBuilder.Entity("MedicalResearch.Domain.Models.MedicineContainer", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("MedicineContainers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "box"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "bottle"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "blister"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "ampoule"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "vial"
+                        });
+                });
+
+            modelBuilder.Entity("MedicalResearch.Domain.Models.MedicineType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("MedicinesTypes");
 
@@ -297,17 +306,20 @@ namespace MedicalResearch.DAL.Migrations
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.Role", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Roles");
 
@@ -331,11 +343,6 @@ namespace MedicalResearch.DAL.Migrations
                         {
                             Id = 4,
                             Name = "Manager"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Anonymous"
                         });
                 });
 
@@ -350,16 +357,13 @@ namespace MedicalResearch.DAL.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ClinicId")
-                        .IsRequired()
+                    b.Property<int>("ClinicId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("DateArrival")
-                        .IsRequired()
+                    b.Property<DateTime>("DateArrival")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("MedicineId")
-                        .IsRequired()
+                    b.Property<int>("MedicineId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -387,16 +391,24 @@ namespace MedicalResearch.DAL.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Initials")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("PaswordSalt")
+                        .IsRequired()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("State")
                         .HasColumnType("integer");
@@ -416,15 +428,21 @@ namespace MedicalResearch.DAL.Migrations
                             Id = 1,
                             Email = "byklin@list.ru",
                             FirstName = "Admin",
-                            Password = "qd3Ju3lhxMRBtD9AGIgm6ni1iykJeYib0HKyGOpWEZM=",
+                            Initials = "",
+                            LastName = "",
+                            Password = "ma+sYwb8QHKHMsfJtQ3l3sLZ4OfAKd7dtnxOAP/KCTA=",
+                            PaswordSalt = new byte[] { 84, 16, 42, 85, 56, 114, 88, 212, 43, 27, 186, 97, 62, 131, 73, 15, 91, 164, 87, 147, 228, 98, 236, 141, 140, 237, 150, 238, 184, 53, 251, 139 },
                             State = 0
                         });
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.Visit", b =>
                 {
-                    b.Property<int>("PatientId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClinicId")
                         .HasColumnType("integer");
@@ -441,10 +459,13 @@ namespace MedicalResearch.DAL.Migrations
                     b.Property<int>("PatientClinicId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("PatientId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.HasKey("PatientId", "ClinicId", "DateOfVisit", "MedicineId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ClinicId");
 
@@ -480,11 +501,11 @@ namespace MedicalResearch.DAL.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ClinicStockSupply", b =>
+            modelBuilder.Entity("ClinicStockMedicineSupply", b =>
                 {
-                    b.HasOne("MedicalResearch.Domain.Models.ClinicStock", null)
+                    b.HasOne("MedicalResearch.Domain.Models.ClinicStockMedicine", null)
                         .WithMany()
-                        .HasForeignKey("ClinicStocksId")
+                        .HasForeignKey("ClinicStockMedicinesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -495,7 +516,7 @@ namespace MedicalResearch.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MedicalResearch.Domain.Models.ClinicStock", b =>
+            modelBuilder.Entity("MedicalResearch.Domain.Models.ClinicStockMedicine", b =>
                 {
                     b.HasOne("MedicalResearch.Domain.Models.Clinic", "Clinic")
                         .WithMany("ClinicStocks")
@@ -516,7 +537,7 @@ namespace MedicalResearch.DAL.Migrations
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.Medicine", b =>
                 {
-                    b.HasOne("MedicalResearch.Domain.Models.Container", "Container")
+                    b.HasOne("MedicalResearch.Domain.Models.MedicineContainer", "Container")
                         .WithMany("Medicines")
                         .HasForeignKey("ContainerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -583,7 +604,7 @@ namespace MedicalResearch.DAL.Migrations
             modelBuilder.Entity("MedicalResearch.Domain.Models.Visit", b =>
                 {
                     b.HasOne("MedicalResearch.Domain.Models.Clinic", "Clinic")
-                        .WithMany()
+                        .WithMany("Visits")
                         .HasForeignKey("ClinicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -601,7 +622,7 @@ namespace MedicalResearch.DAL.Migrations
                         .IsRequired();
 
                     b.HasOne("MedicalResearch.Domain.Models.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("Visits")
                         .HasForeignKey("PatientId", "PatientClinicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -641,11 +662,8 @@ namespace MedicalResearch.DAL.Migrations
                     b.Navigation("Supplies");
 
                     b.Navigation("Users");
-                });
 
-            modelBuilder.Entity("MedicalResearch.Domain.Models.Container", b =>
-                {
-                    b.Navigation("Medicines");
+                    b.Navigation("Visits");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.DosageForm", b =>
@@ -658,9 +676,19 @@ namespace MedicalResearch.DAL.Migrations
                     b.Navigation("Supplies");
                 });
 
+            modelBuilder.Entity("MedicalResearch.Domain.Models.MedicineContainer", b =>
+                {
+                    b.Navigation("Medicines");
+                });
+
             modelBuilder.Entity("MedicalResearch.Domain.Models.MedicineType", b =>
                 {
                     b.Navigation("Medicines");
+                });
+
+            modelBuilder.Entity("MedicalResearch.Domain.Models.Patient", b =>
+                {
+                    b.Navigation("Visits");
                 });
 #pragma warning restore 612, 618
         }

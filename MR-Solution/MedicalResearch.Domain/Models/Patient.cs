@@ -13,10 +13,10 @@ namespace MedicalResearch.Domain.Models
     {
         public int Id { get; set; }
         public int ClinicId { get; set; }
-        public Clinic? Clinic { get; set; }
+        public Clinic Clinic { get; set; } = new ();
         public DateTime DateOfBirth { get; set; }
         public Sex Sex { get; set; }
         public PatientStatus Status { get; set; }
-
+        public List<Visit> Visits { get; set; } = [];
     }
 }

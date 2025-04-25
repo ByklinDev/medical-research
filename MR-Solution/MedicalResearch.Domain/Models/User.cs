@@ -14,13 +14,14 @@ namespace MedicalResearch.Domain.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Initials { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Initials { get; set; } = string.Empty;
         [Required]       
-        public string? Email { get; set; }
+        public string Email { get; set; } = string.Empty;   
         public UserState State { get; set; }
-        public string? Password { get; set; }
+        public string Password { get; set; } = string.Empty;
+        public byte[] PaswordSalt { get; set; } = [];
         public int? ClinicId { get; set; }
         public Clinic? Clinic { get; set; }
         public List<Role> Roles { get; set; } = [];

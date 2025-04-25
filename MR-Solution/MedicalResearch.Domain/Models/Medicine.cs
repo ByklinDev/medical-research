@@ -15,18 +15,16 @@ namespace MedicalResearch.Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
-        public string? Description { get; set; }
-        [Required]
-        public DateTime? ExpireAt { get; set; }
-        [Required]
-        public DateTime? CreatedAt { get; set; }
-        public int? Amount { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public DateTime ExpireAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int Amount { get; set; }
         public int MedicineTypeId { get; set; }
-        public MedicineType? MedicineType { get; set; }
+        public MedicineType MedicineType { get; set; } = new ();
         public int ContainerId { get; set; }
-        public Container? Container { get; set; }
+        public MedicineContainer Container { get; set; } = new ();
         public int DosageFormId { get; set; }
-        public DosageForm? DosageForm { get; set; }
+        public DosageForm DosageForm { get; set; } = new ();
         public MedicineState State { get; set; }
         public List<Supply> Supplies { get; set; } = [];
     }

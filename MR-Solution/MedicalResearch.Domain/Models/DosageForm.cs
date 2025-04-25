@@ -12,9 +12,8 @@ namespace MedicalResearch.Domain.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int? Id { get; set; }
-        [Required]
-        public string? Name { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
         public List<Medicine> Medicines { get; set; } = [];
     }
 }

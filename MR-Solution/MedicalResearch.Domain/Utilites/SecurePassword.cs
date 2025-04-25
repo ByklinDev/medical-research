@@ -28,6 +28,4 @@ namespace MedicalResearch.Domain.Utilites
             }
         }
     }
-
-
 }

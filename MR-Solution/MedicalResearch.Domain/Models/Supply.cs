@@ -13,15 +13,12 @@ namespace MedicalResearch.Domain.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [Required]
-        public DateTime? DateArrival { get; set; }
+        public DateTime DateArrival { get; set; }
         public int Amount { get; set; }
-        [Required]
-        public int? ClinicId { get; set; }
-        public Clinic? Clinic { get; set; }
-        [Required]
-        public int? MedicineId { get; set; }
-        public Medicine? Medicine { get; set; }
-        public List<ClinicStock> ClinicStocks { get; set; } = [];
+        public int ClinicId { get; set; }
+        public Clinic Clinic { get; set; } = new();
+        public int MedicineId { get; set; }
+        public Medicine Medicine { get; set; } = new();
+        public List<ClinicStockMedicine> ClinicStockMedicines { get; set; } = [];
     }
 }
