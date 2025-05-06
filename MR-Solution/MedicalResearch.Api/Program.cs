@@ -1,5 +1,8 @@
 using System.Reflection;
+using FluentValidation;
 using MedicalResearch.DAL.DataContext;
+using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Validations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +12,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IValidator<User>, UserValidator>();
 
 DALRegistrator.RegisterService(builder.Services, builder.Configuration, builder.Environment.IsDevelopment());
 

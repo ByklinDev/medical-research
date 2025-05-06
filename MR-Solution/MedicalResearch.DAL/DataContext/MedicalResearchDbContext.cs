@@ -1,6 +1,7 @@
 ﻿using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Utilites;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.DAL.DataContext
 {
-    public class MedicalResearchDbContext : DbContext
+    public class MedicalResearchDbContext(DbContextOptions<MedicalResearchDbContext> options): DbContext(options)
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
@@ -24,11 +25,6 @@ namespace MedicalResearch.DAL.DataContext
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Supply> Supplies { get; set; }
         public DbSet<Visit> Visits { get; set; }
-
-
-        public MedicalResearchDbContext(DbContextOptions<MedicalResearchDbContext> options) : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

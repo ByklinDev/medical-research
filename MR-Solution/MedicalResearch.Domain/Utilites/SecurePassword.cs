@@ -4,8 +4,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace MedicalResearch.Domain.Utilites
 {
@@ -18,7 +16,7 @@ namespace MedicalResearch.Domain.Utilites
             var randomNumber = new byte[SaltSize];
             RandomNumberGenerator.Fill(randomNumber);
             return randomNumber;
-        }
+        } 
 
         public static byte[] ComputeHMAC_SHA256(byte[] data, byte[] salt)
         {

@@ -21,7 +21,7 @@ namespace MedicalResearch.Domain.Models
         public List<User> Users { get; set; } = [];
         public List<Supply> Supplies { get; set; } = [];
         public List<Patient> Patients { get; set; } = [];
-        public List<ClinicStockMedicine> ClinicStocks { get; set; } = [];
+        public List<ClinicStockMedicine> ClinicStockMedicines { get; set; } = [];
         public List<Visit> Visits { get; set; } = [];
     }
 }
