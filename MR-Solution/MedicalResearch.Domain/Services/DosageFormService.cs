@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Interfaces.Repository;
 using MedicalResearch.Domain.Interfaces.Service;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Services
 {
-    public class DosageFormService(IDosageFormRepository dosageFormRepository, IValidator<DosageForm> dosageFormValidator) : IDosageFormService
+    public class DosageFormService(IUnitOfWork unitOfWork, IValidator<DosageForm> dosageFormValidator) : IDosageFormService
     {
         public async Task<DosageForm> AddDosageFormAsync(DosageForm dosageForm)
         {
@@ -20,28 +21,30 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(validationResult.Errors.First().ErrorMessage);
             }
-            var existingDosageForm = await dosageFormRepository.GetDosageFormByNameAsync(dosageForm.Name);
+            var existingDosageForm = await unitOfWork.DosageFormRepository.GetDosageFormByNameAsync(dosageForm.Name);
             if (existingDosageForm != null)
             {
                 throw new DomainException("Dosage form already exists");
             }
-            return await dosageFormRepository.AddAsync(dosageForm);
+            var added = await unitOfWork.DosageFormRepository.AddAsync(dosageForm);
+            return await unitOfWork.SaveAsync() > 0 ? added : throw new DomainException("Dosage form not added");
         }
 
         public async Task<bool> DeleteDosageFormAsync(int id)
         {
-            var dosageForm = await dosageFormRepository.GetDosageFormByIdAsync(id) ?? throw new DomainException("Dosage form not found");
-            return await dosageFormRepository.DeleteAsync(dosageForm);          
+            var dosageForm = await unitOfWork.DosageFormRepository.GetByIdAsync(id) ?? throw new DomainException("Dosage form not found");
+            var result = unitOfWork.DosageFormRepository.Delete(dosageForm);
+            return  result && await unitOfWork.SaveAsync() > 0;
         }
 
         public async Task<DosageForm?> GetDosageFormAsync(int id)
         {
-            return await dosageFormRepository.GetDosageFormByIdAsync(id);
+            return await unitOfWork.DosageFormRepository.GetByIdAsync(id);
         }
 
         public async Task<List<DosageForm>> GetDosageFormsAsync()
         {
-            return await dosageFormRepository.GetAllAsync();
+            return await unitOfWork.DosageFormRepository.GetAllAsync();
         }
 
         public async Task<DosageForm> UpdateDosageFormAsync(DosageForm dosageForm)
@@ -51,14 +54,15 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(validationResult.Errors.First().ErrorMessage);
             }
-            var existingDosageForm = await dosageFormRepository.GetDosageFormByIdAsync(dosageForm.Id) ?? throw new DomainException("Dosage form not found");
-            var existingDosageFormWithSameName = await dosageFormRepository.GetDosageFormByNameAsync(dosageForm.Name);
+            var existingDosageForm = await unitOfWork.DosageFormRepository.GetByIdAsync(dosageForm.Id) ?? throw new DomainException("Dosage form not found");
+            var existingDosageFormWithSameName = await unitOfWork.DosageFormRepository.GetDosageFormByNameAsync(dosageForm.Name);
             if (existingDosageFormWithSameName != null && existingDosageFormWithSameName.Id != dosageForm.Id)
             {
                 throw new DomainException("Dosage form with the same name already exists");
             }
             existingDosageForm.Name = dosageForm.Name;
-            return await dosageFormRepository.UpdateAsync(existingDosageForm);
+            var updated = unitOfWork.DosageFormRepository.Update(existingDosageForm);
+            return await unitOfWork.SaveAsync() > 0 ? updated : throw new DomainException("Dosage form not updated");
         }
     }
 }

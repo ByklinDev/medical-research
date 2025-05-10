@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Interfaces.Repository;
 using MedicalResearch.Domain.Interfaces.Service;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Services
 {
-    public class MedicineTypeService(IMedicineTypeRepository medicineTypeRepository, IValidator<MedicineType> medicineTypeValidator) : IMedicineTypeService
+    public class MedicineTypeService(IUnitOfWork unitOfWork, IValidator<MedicineType> medicineTypeValidator) : IMedicineTypeService
     {
         public async Task<MedicineType> AddMedicineTypeAsync(MedicineType medicineType)
         {
@@ -20,45 +21,48 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(validationResult.Errors.First().ErrorMessage);
             }
-            var existedMedicineType = await medicineTypeRepository.GetMedicineTypeByNameAsync(medicineType.Name);
+            var existedMedicineType = await unitOfWork.MedicineTypeRepository.GetMedicineTypeByNameAsync(medicineType.Name);
             if (existedMedicineType != null) 
             {
                 throw new DomainException("Medicine type already exists.");
             }
-            return await medicineTypeRepository.AddAsync(medicineType);
+            var added = await unitOfWork.MedicineTypeRepository.AddAsync(medicineType);
+            return await unitOfWork.SaveAsync() > 0 ? added : throw new DomainException("Medicine type not added.");
         }
 
         public async Task<bool> DeleteMedicineTypeAsync(int id)
         {
-            var existedMedicineType = await medicineTypeRepository.GetMedicineTypeByIdAsync(id) ?? throw new DomainException("Medicine type no found."); 
-            return await medicineTypeRepository.DeleteAsync(existedMedicineType);
+            var existedMedicineType = await unitOfWork.MedicineTypeRepository.GetByIdAsync(id) ?? throw new DomainException("Medicine type no found."); 
+            var isDelete = unitOfWork.MedicineTypeRepository.Delete(existedMedicineType);
+            return await unitOfWork.SaveAsync() > 0 ? isDelete : throw new DomainException("Medicine type not deleted.");
         }
 
         public async Task<MedicineType?> GetMedicineTypeAsync(int id)
         {
-            return await medicineTypeRepository.GetMedicineTypeByIdAsync(id);
+            return await unitOfWork.MedicineTypeRepository.GetByIdAsync(id);
         }
 
         public async Task<List<MedicineType>> GetMedicineTypesAsync()
         {
-            return await medicineTypeRepository.GetAllAsync();
+            return await unitOfWork.MedicineTypeRepository.GetAllAsync();
         }
 
         public async Task<MedicineType> UpdateMedicineTypeAsync(MedicineType medicineType)
         {
-            var existedMedicineType = await medicineTypeRepository.GetMedicineTypeByIdAsync(medicineType.Id) ?? throw new DomainException("Medicine type no found.");
+            var existedMedicineType = await unitOfWork.MedicineTypeRepository.GetByIdAsync(medicineType.Id) ?? throw new DomainException("Medicine type no found.");
             var validationResult = await medicineTypeValidator.ValidateAsync(medicineType);
             if (!validationResult.IsValid)
             {
                 throw new DomainException(validationResult.Errors.First().ErrorMessage);
             }
-            var existedMedicineTypeWithSameName = await medicineTypeRepository.GetMedicineTypeByNameAsync(medicineType.Name);
+            var existedMedicineTypeWithSameName = await unitOfWork.MedicineTypeRepository.GetMedicineTypeByNameAsync(medicineType.Name);
             if (existedMedicineTypeWithSameName != null && existedMedicineTypeWithSameName.Id != medicineType.Id)
             {
                 throw new DomainException("Medicine type with this name already exists.");
             }
             existedMedicineType.Name = medicineType.Name;
-            return await medicineTypeRepository.UpdateAsync(existedMedicineType);
+            var updated = unitOfWork.MedicineTypeRepository.Update(existedMedicineType);
+            return await unitOfWork.SaveAsync() > 0 ? updated : throw new DomainException("Medicine type not updated.");
         }
     }
 }

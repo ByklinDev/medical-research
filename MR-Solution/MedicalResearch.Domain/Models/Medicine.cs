@@ -9,11 +9,8 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Medicine
+    public class Medicine: TEntiny
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
         [Required]
         public string Description { get; set; } = string.Empty;
         public DateTime ExpireAt { get; set; }

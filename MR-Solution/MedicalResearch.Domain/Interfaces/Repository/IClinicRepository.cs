@@ -9,7 +9,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface IClinicRepository: IBaseRepository<Clinic>
     {
-        Task<Clinic?> GetClinicByIdAsync(int id);
         Task<Clinic?> GetClinicByNameAsync(string name);
     }
 }

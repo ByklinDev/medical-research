@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Exceptions;
+﻿using MedicalResearch.DAL.UnitOfWork;
+using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Interfaces.Repository;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
@@ -10,34 +11,30 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Services
 {
-    public class SupplyService(ISupplyRepository supplyRepository, IMedicineRepository medicineRepository, IClinicStockMedicineRepository clinicStockMedicineRepository) : ISupplyService
+    public class SupplyService(IUnitOfWork unitOfWork) : ISupplyService
     {
         public async Task<List<Supply>> AddSupplyAsync(List<Supply> supplies)
         {
             List<Supply> addedSupplies = [];
             foreach (var supply in supplies)
             {
-                var medicineToSupply = await medicineRepository.GetMedicineByIdAsync(supply.MedicineId) ?? throw new DomainException("Medicine not found");
+                var medicineToSupply = await unitOfWork.MedicineRepository.GetByIdAsync(supply.MedicineId) ?? throw new DomainException("Medicine not found");
                 if (medicineToSupply.Amount < supply.Amount)
                 {
                     throw new DomainException("Not enough medicine in stock");
                 }
-                var addedSupply = await supplyRepository.AddAsync(supply);
-
-                if (addedSupply != null)
-                {
-                    addedSupplies.Add(addedSupply);
-                }
                 else
                 {
-                    throw new DomainException("Failed to add supply");
-
+                    medicineToSupply.Amount -= supply.Amount;
+                    unitOfWork.MedicineRepository.Update(medicineToSupply);
                 }
-                var clinicStockMedicine = await clinicStockMedicineRepository.GetClinicStockMedicineAsync(supply.MedicineId, supply.ClinicId);
+                var addedSupply = await unitOfWork.SupplyRepository.AddAsync(supply);
+
+                var clinicStockMedicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(supply.MedicineId, supply.ClinicId);
                 if (clinicStockMedicine != null)
                 {
                     clinicStockMedicine.Amount += supply.Amount;
-                    await clinicStockMedicineRepository.UpdateAsync(clinicStockMedicine);
+                    unitOfWork.ClinicStockMedicineRepository.Update(clinicStockMedicine);
                 }
                 else
                 {
@@ -47,16 +44,17 @@ namespace MedicalResearch.Domain.Services
                         ClinicId = supply.ClinicId,
                         Amount = supply.Amount
                     };
-                    await clinicStockMedicineRepository.AddAsync(newClinicStockMedicine);
+                    await unitOfWork.ClinicStockMedicineRepository.AddAsync(newClinicStockMedicine);
                 }
-                
+                addedSupplies.Add(addedSupply);
             }
+            await unitOfWork.SaveAsync();
             return addedSupplies;
         }
 
         public async Task<Supply> AddToSupply(Medicine medicine, int amount, int clinicId)
         {
-            var medicineToSupply = await medicineRepository.GetMedicineByIdAsync(medicine.Id) ?? throw new DomainException("Medicine not found");
+            var medicineToSupply = await unitOfWork.MedicineRepository.GetByIdAsync(medicine.Id) ?? throw new DomainException("Medicine not found");
             if (medicineToSupply.Amount < amount)
             {
                 throw new DomainException("Not enough medicine in stock");
@@ -72,48 +70,49 @@ namespace MedicalResearch.Domain.Services
 
         public async Task<bool> DeleteSupplyAsync(int id)
         {
-            var existingSupply = await supplyRepository.GetSupplyByIdAsync(id) ?? throw new DomainException("Supply not found");
-            var medicine = await medicineRepository.GetMedicineByIdAsync(existingSupply.MedicineId) ?? throw new DomainException("Medicine not found");
+            var existingSupply = await unitOfWork.SupplyRepository.GetByIdAsync(id) ?? throw new DomainException("Supply not found");
+            var medicine = await unitOfWork.MedicineRepository.GetByIdAsync(existingSupply.MedicineId) ?? throw new DomainException("Medicine not found");
             medicine.Amount += existingSupply.Amount;
-            await medicineRepository.UpdateAsync(medicine);
-            var clinicStockMedicine = await clinicStockMedicineRepository.GetClinicStockMedicineAsync(existingSupply.MedicineId, existingSupply.ClinicId);
+            unitOfWork.MedicineRepository.Update(medicine);
+            var clinicStockMedicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(existingSupply.MedicineId, existingSupply.ClinicId);
             if (clinicStockMedicine != null)
             {
                 clinicStockMedicine.Amount -= existingSupply.Amount;
-                await clinicStockMedicineRepository.UpdateAsync(clinicStockMedicine);
+                unitOfWork.ClinicStockMedicineRepository.Update(clinicStockMedicine);
             }
             else
             {
                 throw new DomainException("Clinic stock medicine not found");
             }
-            return await supplyRepository.DeleteAsync(existingSupply);
+            var isDelete = unitOfWork.SupplyRepository.Delete(existingSupply);
+            return await unitOfWork.SaveAsync() > 0 ? isDelete : throw new DomainException("Supply not deleted");
         }
 
         public async Task<List<Supply>> GetSuppliesAsync()
         {
-            return await supplyRepository.GetAllAsync();
+            return await unitOfWork.SupplyRepository.GetAllAsync();
         }
 
         public async Task<List<Supply>> GetSuppliesByClinicIdAsync(int clinicId)
         {
-            return await supplyRepository.GetSuppliesByClinicIdAsync(clinicId);
+            return await unitOfWork.SupplyRepository.GetSuppliesByClinicIdAsync(clinicId);
         }       
 
         public async Task<List<Supply>> GetSuppliesByMedicineIdAsync(int medicineId)
         {
-            return await supplyRepository.GetSuppliesByMedicineIdAsync(medicineId);
+            return await unitOfWork.SupplyRepository.GetSuppliesByMedicineIdAsync(medicineId);
         }
 
         public async Task<Supply?> GetSupplyAsync(int id)
         {
-            return await supplyRepository.GetSupplyByIdAsync(id);
+            return await unitOfWork.SupplyRepository.GetByIdAsync(id);
         }
 
         public async Task<Supply> UpdateSupplyAsync(Supply supply)
         {
-            var existingSupply = await supplyRepository.GetSupplyByIdAsync(supply.Id) ?? throw new DomainException("Supply not found");
+            var existingSupply = await unitOfWork.SupplyRepository.GetByIdAsync(supply.Id) ?? throw new DomainException("Supply not found");
             var diff = supply.Amount - existingSupply.Amount;
-            var existingClinicStockMedicine = await clinicStockMedicineRepository.GetClinicStockMedicineAsync(existingSupply.MedicineId, existingSupply.ClinicId);
+            var existingClinicStockMedicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(existingSupply.MedicineId, existingSupply.ClinicId);
             if (existingClinicStockMedicine == null)
             {
                 throw new DomainException("Clinic stock medicine not found");
@@ -124,8 +123,9 @@ namespace MedicalResearch.Domain.Services
             }
             existingClinicStockMedicine.Amount += diff;
             existingSupply.Amount = supply.Amount;
-            await clinicStockMedicineRepository.UpdateAsync(existingClinicStockMedicine);
-            return await supplyRepository.UpdateAsync(existingSupply);
+            unitOfWork.ClinicStockMedicineRepository.Update(existingClinicStockMedicine);
+            var updated = unitOfWork.SupplyRepository.Update(existingSupply);
+            return await unitOfWork.SaveAsync() > 0 ? updated : throw new DomainException("Supply not updated");
         }
     }
 }

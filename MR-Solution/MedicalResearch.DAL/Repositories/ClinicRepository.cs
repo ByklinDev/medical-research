@@ -12,14 +12,9 @@ namespace MedicalResearch.DAL.Repositories
 {
     internal class ClinicRepository(MedicalResearchDbContext _context) : BaseRepository<Clinic>(_context), IClinicRepository
     {
-        public async Task<Clinic?> GetClinicByIdAsync(int id)
-        {
-            return await _context.Set<Clinic>().FirstOrDefaultAsync(x => x.Id == id);
-        }
-
         public async Task<Clinic?> GetClinicByNameAsync(string name)
         {
-            return await _context.Set<Clinic>().FirstOrDefaultAsync(x => x.Name == name);
+            return await _dbSet.FirstOrDefaultAsync(x => x.Name == name);
         }
     }
 }

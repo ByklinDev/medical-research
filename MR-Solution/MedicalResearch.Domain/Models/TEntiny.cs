@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class MedicineType: TEntiny
+    public abstract class TEntiny
     {
-        public string Name { get; set; } = string.Empty;
-        public List<Medicine> Medicines { get; set; } = [];
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
     }
 }

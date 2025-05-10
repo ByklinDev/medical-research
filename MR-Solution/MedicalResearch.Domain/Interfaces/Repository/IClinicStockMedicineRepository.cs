@@ -9,7 +9,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface IClinicStockMedicineRepository: IBaseRepository<ClinicStockMedicine>
     {
-        Task<ClinicStockMedicine?> GetClinicStockMedicineById(int id);
         Task<ClinicStockMedicine?> GetClinicStockMedicineAsync(int clinicId, int medicineId); 
     }
 }

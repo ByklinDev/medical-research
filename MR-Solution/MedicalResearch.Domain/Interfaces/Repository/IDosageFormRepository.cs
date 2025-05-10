@@ -9,7 +9,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface IDosageFormRepository: IBaseRepository<DosageForm>
     {
-        Task<DosageForm?> GetDosageFormByIdAsync(int id);
         Task<DosageForm?> GetDosageFormByNameAsync(string name);
     }
 }

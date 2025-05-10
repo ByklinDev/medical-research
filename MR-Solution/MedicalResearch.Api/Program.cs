@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using MedicalResearch.DAL.DataContext;
+using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Validations;
 
@@ -15,7 +16,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IValidator<User>, UserValidator>();
 
+
 DALRegistrator.RegisterService(builder.Services, builder.Configuration, builder.Environment.IsDevelopment());
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 

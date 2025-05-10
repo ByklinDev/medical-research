@@ -8,11 +8,8 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Clinic
+    public class Clinic : TEntiny 
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string AddressOne { get; set; } = string.Empty;

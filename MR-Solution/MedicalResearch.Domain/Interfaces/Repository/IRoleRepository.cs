@@ -9,7 +9,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface IRoleRepository: IBaseRepository<Role>
     {
-        Task<Role?> GetRoleByIdAsync(int id);
         Task<Role?> GetRoleByNameAsync(string name);
     }
 }

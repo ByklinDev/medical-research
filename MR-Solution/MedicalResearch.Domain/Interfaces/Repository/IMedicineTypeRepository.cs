@@ -9,7 +9,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface IMedicineTypeRepository: IBaseRepository<MedicineType>
     {
-        Task<MedicineType?> GetMedicineTypeByIdAsync(int id);
         Task<MedicineType?> GetMedicineTypeByNameAsync(string name);
     }
 }

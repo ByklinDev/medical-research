@@ -9,6 +9,5 @@ namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface IPatientRepository: IBaseRepository<Patient>
     {
-        Task<Patient?> GetPatientByIdAsync(int id);
     }
 }

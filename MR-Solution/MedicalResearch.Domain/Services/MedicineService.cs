@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Interfaces.Repository;
 using MedicalResearch.Domain.Interfaces.Service;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Services
 {
-    public class MedicineService(IMedicineRepository medicineRepository, IValidator<Medicine> medicineValidator) : IMedicineService
+    public class MedicineService(IUnitOfWork unitOfWork, IValidator<Medicine> medicineValidator) : IMedicineService
     {
         public async Task<Medicine> AddMedicineAsync(Medicine medicine)
         {
@@ -20,28 +21,30 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(validationResult.Errors.First().ErrorMessage);
             }
-            var existingMedicine = await medicineRepository.GetMedicineAsync(medicine);
+            var existingMedicine = await unitOfWork.MedicineRepository.GetMedicineAsync(medicine);
             if (existingMedicine != null)
             {
-                throw new DomainException("Medicine already exists");
+                throw new DomainException("Same medicine already exists");
             }
-            return await medicineRepository.AddAsync(medicine);
+            var added = await unitOfWork.MedicineRepository.AddAsync(medicine);
+            return await unitOfWork.SaveAsync() > 0 ? added : throw new DomainException("Medicine not added");
         }
 
         public async Task<bool> DeleteMedicineAsync(int id)
         {
-            var medicine = await medicineRepository.GetMedicineByIdAsync(id) ?? throw new DomainException("Medicine not found");
-            return await medicineRepository.DeleteAsync(medicine);
+            var medicine = await unitOfWork.MedicineRepository.GetByIdAsync(id) ?? throw new DomainException("Medicine not found");
+            var isDelete = unitOfWork.MedicineRepository.Delete(medicine);
+            return isDelete && await unitOfWork.SaveAsync() > 0;
         }
 
         public async Task<Medicine?> GetMedicineAsync(int id)
         {
-            return await medicineRepository.GetMedicineByIdAsync(id);
+            return await unitOfWork.MedicineRepository.GetByIdAsync(id);
         }
 
         public async Task<List<Medicine>> GetMedicinesAsync()
         {
-            return await medicineRepository.GetAllAsync();
+            return await unitOfWork.MedicineRepository.GetAllAsync();
         }
 
         public async Task<Medicine> UpdateMedicineAsync(Medicine medicine)
@@ -51,7 +54,7 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(validationResult.Errors.First().ErrorMessage);
             }
-            var existingMedicine = await medicineRepository.GetMedicineByIdAsync(medicine.Id) ?? throw new DomainException("Medicine not found");
+            var existingMedicine = await unitOfWork.MedicineRepository.GetByIdAsync(medicine.Id) ?? throw new DomainException("Medicine not found");
             existingMedicine.Description = medicine.Description;
             existingMedicine.ExpireAt = medicine.ExpireAt;
             existingMedicine.Amount = medicine.Amount;
@@ -59,7 +62,8 @@ namespace MedicalResearch.Domain.Services
             existingMedicine.MedicineContainerId = medicine.MedicineContainerId;
             existingMedicine.DosageFormId = medicine.DosageFormId;
             existingMedicine.State = medicine.State;
-            return await medicineRepository.UpdateAsync(existingMedicine);
+            var updated =  unitOfWork.MedicineRepository.Update(existingMedicine);
+            return await unitOfWork.SaveAsync() > 0 ? updated : throw new DomainException("Medicine not updated");
         }
     }
 }

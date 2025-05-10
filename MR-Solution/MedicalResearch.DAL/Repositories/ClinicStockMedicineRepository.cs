@@ -14,7 +14,7 @@ namespace MedicalResearch.DAL.Repositories
     {
         public async Task<ClinicStockMedicine?> GetClinicStockMedicineById(int id)
         {
-            return await _context.Set<ClinicStockMedicine>()
+            return await _dbSet
                 .Include(x => x.Clinic)
                 .Include(x => x.Medicine)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -22,7 +22,7 @@ namespace MedicalResearch.DAL.Repositories
 
         public async Task<ClinicStockMedicine?> GetClinicStockMedicineAsync(int clinicId, int medicineId)
         {
-            return await _context.Set<ClinicStockMedicine>()
+            return await _dbSet
                 .Include(x => x.Clinic)
                 .Include(x => x.Medicine)
                 .FirstOrDefaultAsync(x => (x.ClinicId == clinicId) && (x.MedicineId == medicineId));

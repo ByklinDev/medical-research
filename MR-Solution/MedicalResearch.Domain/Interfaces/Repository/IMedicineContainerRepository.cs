@@ -9,7 +9,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface IMedicineContainerRepository: IBaseRepository<MedicineContainer>
     {
-        Task<MedicineContainer?> GetMedicineContainerByIdAsync(int id);
         Task<MedicineContainer?> GetMedicineContainerByNameAsync(string name);
     }
 }

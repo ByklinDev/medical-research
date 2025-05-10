@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Enums;
 using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Interfaces.Repository;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Services
 {
-    public class UserService(IUserRepository userRepository, IValidator<User> userValidator) : IUserService
+    public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator) : IUserService
     {
         public async Task<User> AddUserAsync(User user)
         {
@@ -21,13 +22,14 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(result.Errors[0].ToString());
             }
-            var existingUser = userRepository.GetUserByEmailAsync(user.Email);
+            var existingUser = unitOfWork.UserRepository.GetUserByEmailAsync(user.Email);
             if (existingUser != null)
             {
                 throw new DomainException("User with this email already exists");
             }
             user.Roles.Add(new Role() { Id = 3, Name = "Researcher" });
-            return await userRepository.AddAsync(user);
+            var addedUser = await unitOfWork.UserRepository.AddAsync(user);
+            return await unitOfWork.SaveAsync() > 0 ? addedUser : throw new DomainException("User not added");            
         }
 
         public async Task<bool> AddUserRole(User user, Role role)
@@ -37,50 +39,46 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(result.Errors[0].ToString());
             }
-            var existingUser = await userRepository.GetUserByEmailAsync(user.Email) ?? throw new DomainException("User not found");
+            var existingUser = await unitOfWork.UserRepository.GetUserByEmailAsync(user.Email) ?? throw new DomainException("User not found");
             var existingRole = existingUser.Roles.FirstOrDefault(x => x.Id == role.Id);
             if (existingRole != null)
             {
                 throw new DomainException("User already has this role");
             } 
             existingUser.Roles.Add(role);            
-            await userRepository.UpdateAsync(existingUser); 
-            return true;
+            var updated = unitOfWork.UserRepository.Update(existingUser); 
+            return updated != null;
         }
 
         public async Task<bool> DeleteUserAsync(int id)
         {
-            var user = await userRepository.GetUserByIdAsync(id) ?? throw new DomainException("User not found");
-            var result = await userRepository.DeleteAsync(user);
-            if (!result)
-            {
-                throw new DomainException("User not deleted");
-            }
-            return result;
+            var user = await unitOfWork.UserRepository.GetByIdAsync(id) ?? throw new DomainException("User not found");
+            var isDelete =  unitOfWork.UserRepository.Delete(user);
+            return isDelete && await unitOfWork.SaveAsync() > 0;
         }
 
         public async Task<bool> DeleteUserRole(User user, Role role)
         {
-            var userToDelete = await userRepository.GetUserByEmailAsync(user.Email) ?? throw new DomainException("User not found");
+            var userToDelete = await  unitOfWork.UserRepository.GetUserByEmailAsync(user.Email) ?? throw new DomainException("User not found");
             var existingRole = userToDelete.Roles.FirstOrDefault(x => x.Id == role.Id) ?? throw new DomainException("User does not have this role");
             userToDelete.Roles.Remove(existingRole);
-            await userRepository.UpdateAsync(userToDelete);
-            return true;
+            var updated = unitOfWork.UserRepository.Update(userToDelete);
+            return updated != null;
         }
 
         public async Task<User?> GetUserAsync(int id)
         {
-            return await userRepository.GetUserByIdAsync(id);
+            return await unitOfWork.UserRepository.GetByIdAsync(id);
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return await userRepository.GetUserByEmailAsync(email);
+            return await unitOfWork.UserRepository.GetUserByEmailAsync(email);
         }
 
         public async Task<List<User>> GetUsersAsync()
         {
-            return await userRepository.GetAllAsync();
+            return await unitOfWork.UserRepository.GetAllAsync();
         }
 
         public async Task<User> UpdateUserAsync(User user)
@@ -90,7 +88,7 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(result.Errors[0].ToString());
             }
-            var existingUser = await userRepository.GetUserByIdAsync(user.Id) ?? throw new DomainException("User not found");
+            var existingUser = await unitOfWork.UserRepository.GetByIdAsync(user.Id) ?? throw new DomainException("User not found");
             
             existingUser.FirstName = user.FirstName;
             existingUser.LastName = user.LastName;
@@ -101,16 +99,16 @@ namespace MedicalResearch.Domain.Services
             existingUser.PaswordSalt = user.PaswordSalt;
             existingUser.Roles = user.Roles;
 
-            return await userRepository.UpdateAsync(existingUser);
-
+            var updated = unitOfWork.UserRepository.Update(existingUser);
+            return await unitOfWork.SaveAsync() > 0 ? updated : throw new DomainException("User not updated");
         }
 
         public async Task<UserState> SetState(User user, UserState state)
         {
-            var existingUser = await userRepository.GetUserByEmailAsync(user.Email) ?? throw new DomainException("User not found");
+            var existingUser = await unitOfWork.UserRepository.GetUserByEmailAsync(user.Email) ?? throw new DomainException("User not found");
             existingUser.State = state;
-            await userRepository.UpdateAsync(existingUser);
-            return state;
+            var updated = unitOfWork.UserRepository.Update(existingUser);
+            return updated.State;
         }
     }
 }

@@ -1,44 +1,85 @@
 ﻿using MedicalResearch.DAL.DataContext;
 using MedicalResearch.Domain.Interfaces.Repository;
+using MedicalResearch.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MedicalResearch.DAL.Repositories
 {
-    internal class BaseRepository<T>(MedicalResearchDbContext _context): IBaseRepository<T> where T : class
-    {        
+    internal class BaseRepository<T> : IBaseRepository<T> where T : TEntiny
+    {
+        private readonly MedicalResearchDbContext _context;
+        protected readonly DbSet<T> _dbSet;
+        public BaseRepository(MedicalResearchDbContext context)
+        {
+            _context = context;
+            _dbSet = _context.Set<T>();
+        }
+
         public virtual async Task<T> AddAsync(T entity)
         {
-            _context.Set<T>().Add(entity);
-            await _context.SaveChangesAsync();
+            await _dbSet.AddAsync(entity);
             return entity;
         }
 
-        public virtual async Task<bool> DeleteAsync(T entity)
+        public virtual bool Delete(T entity)
         {
-            var existingEntity = _context.Set<T>().Entry(entity).Entity;
+            var existingEntity = _dbSet.Entry(entity).Entity;
             if (existingEntity == null)
             {
                 return false;
             }
-            _context.Set<T>().Remove(existingEntity);
-            return await _context.SaveChangesAsync() > 0;
+            _dbSet.Remove(existingEntity);
+            return true;
         }
 
         public virtual async Task<List<T>> GetAllAsync()
         {
-            return await _context.Set<T>().ToListAsync();
+            return await _dbSet.ToListAsync();
         }
 
-        public async Task<T> UpdateAsync(T entity)
+        public virtual T Update(T entity)
         {
-            _context.Set<T>().Update(entity);
-            await _context.SaveChangesAsync();
+            _dbSet.Update(entity);
             return entity;
+        }
+
+        public virtual async Task<T?> GetByIdAsync(int id)
+        {
+            return await _dbSet.FindAsync(id);
+        }
+
+        public virtual IEnumerable<T> Get(
+            Expression<Func<T, bool>>? filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            string includeProperties = "")
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            foreach (var includeProperty in includeProperties.Split
+                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+
+            if (orderBy != null)
+            {
+                return orderBy(query).ToList();
+            }
+            else
+            {
+                return query.ToList();
+            }
         }
     }
 }

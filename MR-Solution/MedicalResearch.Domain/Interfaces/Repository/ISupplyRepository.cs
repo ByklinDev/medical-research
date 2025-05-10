@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface ISupplyRepository: IBaseRepository<Supply>
-    {
-        Task<Supply?> GetSupplyByIdAsync(int id);         
+    {        
         Task<List<Supply>> GetSuppliesByClinicIdAsync(int clinicId);
         Task<List<Supply>> GetSuppliesByMedicineIdAsync(int medicineId);
     }

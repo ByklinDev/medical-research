@@ -9,6 +9,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface IVisitRepository: IBaseRepository<Visit>
     {
-        Task<Visit?> GetVisitByIdAsync(int id);
+        int GetNumberOfNextVisit(int patientId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Interfaces.Repository;
 using MedicalResearch.Domain.Interfaces.Service;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Services
 {
-    public class ClinicService(IClinicRepository clinicRepository, IValidator<Clinic> clinicValidator): IClinicService
+    public class ClinicService(IUnitOfWork unitOfWork, IValidator<Clinic> clinicValidator): IClinicService
     {
         public async Task<Clinic> AddClinicAsync(Clinic clinic)
         {
@@ -20,29 +21,31 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(result.Errors.First().ErrorMessage);
             }
-            var existingClinic = await clinicRepository.GetClinicByNameAsync(clinic.Name);
+            var existingClinic = await unitOfWork.ClinicRepository.GetClinicByNameAsync(clinic.Name);
             if (existingClinic != null)
             {
                 throw new DomainException("Clinic with the same name already exists");
             }
-            return await clinicRepository.AddAsync(clinic);
+            var addedClinic = await unitOfWork.ClinicRepository.AddAsync(clinic);
+            return await unitOfWork.SaveAsync() > 0 ? addedClinic : throw new DomainException("Clinic not added");
         }
         public async Task<bool> DeleteClinicAsync(int id)
         {
-            var clinic = await clinicRepository.GetClinicByIdAsync(id);
+            var clinic = await unitOfWork.ClinicRepository.GetByIdAsync(id);
             if (clinic == null)
             {
                 return false;
             }
-            return await clinicRepository.DeleteAsync(clinic);
+            unitOfWork.ClinicRepository.Delete(clinic);
+            return await unitOfWork.SaveAsync() > 0;
         }
         public async Task<Clinic?> GetClinicAsync(int id)
         {
-            return await clinicRepository.GetClinicByIdAsync(id);
+            return await unitOfWork.ClinicRepository.GetByIdAsync(id);
         }
         public async Task<List<Clinic>> GetClinicsAsync()
         {
-            return await clinicRepository.GetAllAsync();
+            return await unitOfWork.ClinicRepository.GetAllAsync();
         }
         public async Task<Clinic> UpdateClinicAsync(Clinic clinic)
         {
@@ -51,10 +54,10 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(result.Errors.First().ErrorMessage);
             }
-            var existingClinic = await clinicRepository.GetClinicByIdAsync(clinic.Id) ?? throw new DomainException("Clinic not found");
+            var existingClinic = await unitOfWork.ClinicRepository.GetByIdAsync(clinic.Id) ?? throw new DomainException("Clinic not found");
             if (existingClinic.Name != clinic.Name)
             {
-                var existingClinicWithSameName = await clinicRepository.GetClinicByNameAsync(clinic.Name);
+                var existingClinicWithSameName = await unitOfWork.ClinicRepository.GetClinicByNameAsync(clinic.Name);
                 if (existingClinicWithSameName != null)
                 {
                     throw new DomainException("Clinic with the same name already exists");
@@ -65,7 +68,8 @@ namespace MedicalResearch.Domain.Services
             existingClinic.City = clinic.City;
             existingClinic.AddressOne = clinic.AddressOne;
             existingClinic.AddressTwo = clinic.AddressTwo;
-            return await clinicRepository.UpdateAsync(existingClinic);
+            var updatedClinic = unitOfWork.ClinicRepository.Update(existingClinic);
+            return await unitOfWork.SaveAsync() > 0 ? updatedClinic : throw new DomainException("Clinic not updated");
         }
     }
 }

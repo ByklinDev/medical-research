@@ -12,13 +12,9 @@ namespace MedicalResearch.DAL.Repositories
 {
     internal class DosageFormRepository(MedicalResearchDbContext _context) : BaseRepository<DosageForm>(_context), IDosageFormRepository
     {
-        public async Task<DosageForm?> GetDosageFormByIdAsync(int id)
-        {
-            return await _context.Set<DosageForm>().FirstOrDefaultAsync(x => x.Id == id);
-        }
         public async Task<DosageForm?> GetDosageFormByNameAsync(string name)
         {
-            return await _context.Set<DosageForm>().FirstOrDefaultAsync(x => x.Name == name);
+            return await _dbSet.FirstOrDefaultAsync(x => x.Name == name);
         }
     }
 }

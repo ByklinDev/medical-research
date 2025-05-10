@@ -28,6 +28,20 @@ namespace MedicalResearch.DAL.DataContext
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>().UseTpcMappingStrategy().ToTable("Users");
+            modelBuilder.Entity<Role>().UseTpcMappingStrategy().ToTable("Roles");
+            modelBuilder.Entity<Clinic>().UseTpcMappingStrategy().ToTable("Clinics");
+            modelBuilder.Entity<ClinicStockMedicine>().UseTpcMappingStrategy().ToTable("ClinicsStockMedicines");
+            modelBuilder.Entity<MedicineContainer>().UseTpcMappingStrategy().ToTable("MedicinesContainers");
+            modelBuilder.Entity<DosageForm>().UseTpcMappingStrategy().ToTable("DosageForms");
+            modelBuilder.Entity<Medicine>().UseTpcMappingStrategy().ToTable("Medicines");
+            modelBuilder.Entity<MedicineType>().UseTpcMappingStrategy().ToTable("MedicinesTypes");
+            modelBuilder.Entity<Patient>().UseTpcMappingStrategy().ToTable("Patients");
+            modelBuilder.Entity<Supply>().UseTpcMappingStrategy().ToTable("Supplies");
+            modelBuilder.Entity<Visit>().UseTpcMappingStrategy().ToTable("Visits");
+
+
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>().HasIndex(p => p.Email).IsUnique();
@@ -36,8 +50,6 @@ namespace MedicalResearch.DAL.DataContext
             modelBuilder.Entity<MedicineType>().HasIndex(p => p.Name).IsUnique();
             modelBuilder.Entity<DosageForm>().HasIndex(p => p.Name).IsUnique();
             modelBuilder.Entity<Role>().HasIndex(p => p.Name).IsUnique();
-
-            modelBuilder.Entity<Patient>().HasKey(p => new { p.Id, p.ClinicId });
 
             modelBuilder.Entity<Role>().HasData(new Role() { Id = 1, Name = "Admin" });
             modelBuilder.Entity<Role>().HasData(new Role() { Id = 2, Name = "Sponsor" });

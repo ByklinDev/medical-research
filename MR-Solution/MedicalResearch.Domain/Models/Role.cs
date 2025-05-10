@@ -8,11 +8,8 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Role
+    public class Role: TEntiny
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public List<User> Users { get; set; } = [];
     }

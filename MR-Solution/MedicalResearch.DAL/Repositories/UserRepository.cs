@@ -14,14 +14,7 @@ namespace MedicalResearch.DAL.Repositories
     {
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return await _context.Users.Include(x => x.Roles)
-                .FirstOrDefaultAsync(x => x.Email == email);
-        }
-
-        public async Task<User?> GetUserByIdAsync(int id)
-        {
-            return await _context.Users.Include(x => x.Roles)
-                .FirstOrDefaultAsync(x => x.Id == id);
+            return await _dbSet.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Email == email);
         }
     }
 }

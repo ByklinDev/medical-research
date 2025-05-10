@@ -3,6 +3,7 @@ using System;
 using MedicalResearch.DAL.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedicalResearch.DAL.Migrations
 {
     [DbContext(typeof(MedicalResearchDbContext))]
-    partial class MedicalResearchDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250510084737_initDb")]
+    partial class initDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -332,10 +335,6 @@ namespace MedicalResearch.DAL.Migrations
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Number")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("Sex")
                         .HasColumnType("integer");
 
@@ -486,8 +485,8 @@ namespace MedicalResearch.DAL.Migrations
                             FirstName = "Admin",
                             Initials = "",
                             LastName = "",
-                            Password = "NN2UYK0GaglNHHPmmtV+PWZwidOXz2FGVOyijjcJPkQ=",
-                            PaswordSalt = new byte[] { 108, 84, 39, 88, 8, 173, 154, 70, 104, 165, 114, 83, 94, 31, 23, 149, 2, 55, 233, 24, 111, 98, 182, 231, 121, 154, 211, 207, 114, 42, 192, 1 },
+                            Password = "3bu3siTYGhzJpkFjDqOKhsJrXPcczhf2uyVKSkSuH/0=",
+                            PaswordSalt = new byte[] { 40, 200, 213, 204, 217, 250, 135, 110, 27, 232, 124, 154, 228, 27, 82, 221, 124, 68, 216, 157, 79, 122, 104, 179, 78, 185, 172, 117, 214, 140, 132, 172 },
                             State = 0
                         });
                 });
