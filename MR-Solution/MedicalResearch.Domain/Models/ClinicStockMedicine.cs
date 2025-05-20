@@ -8,11 +8,8 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class ClinicStockMedicine
+    public class ClinicStockMedicine: Entity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
         public int Amount { get; set; }
         public int ClinicId { get; set; }
         public Clinic Clinic { get; set; } = new ();

@@ -8,11 +8,8 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Clinic
+    public class Clinic : Entity 
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string AddressOne { get; set; } = string.Empty;
@@ -21,7 +18,7 @@ namespace MedicalResearch.Domain.Models
         public List<User> Users { get; set; } = [];
         public List<Supply> Supplies { get; set; } = [];
         public List<Patient> Patients { get; set; } = [];
-        public List<ClinicStockMedicine> ClinicStocks { get; set; } = [];
+        public List<ClinicStockMedicine> ClinicStockMedicines { get; set; } = [];
         public List<Visit> Visits { get; set; } = [];
     }
 }

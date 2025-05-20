@@ -9,11 +9,8 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Medicine
+    public class Medicine: Entity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
         [Required]
         public string Description { get; set; } = string.Empty;
         public DateTime ExpireAt { get; set; }
@@ -21,8 +18,8 @@ namespace MedicalResearch.Domain.Models
         public int Amount { get; set; }
         public int MedicineTypeId { get; set; }
         public MedicineType MedicineType { get; set; } = new ();
-        public int ContainerId { get; set; }
-        public MedicineContainer Container { get; set; } = new ();
+        public int MedicineContainerId { get; set; }
+        public MedicineContainer MedicineContainer { get; set; } = new ();
         public int DosageFormId { get; set; }
         public DosageForm DosageForm { get; set; } = new ();
         public MedicineState State { get; set; }

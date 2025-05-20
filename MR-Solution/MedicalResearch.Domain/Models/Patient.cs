@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Patient
+    public class Patient: Entity
     {
-        public int Id { get; set; }
+        public string Number { get; set; } = string.Empty;
         public int ClinicId { get; set; }
         public Clinic Clinic { get; set; } = new ();
         public DateTime DateOfBirth { get; set; }
