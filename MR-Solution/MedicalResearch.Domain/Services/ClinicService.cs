@@ -31,13 +31,9 @@ namespace MedicalResearch.Domain.Services
         }
         public async Task<bool> DeleteClinicAsync(int id)
         {
-            var clinic = await unitOfWork.ClinicRepository.GetByIdAsync(id);
-            if (clinic == null)
-            {
-                return false;
-            }
-            unitOfWork.ClinicRepository.Delete(clinic);
-            return await unitOfWork.SaveAsync() > 0;
+            var clinic = await unitOfWork.ClinicRepository.GetByIdAsync(id) ?? throw new DomainException("Clinic not found");
+            var result = unitOfWork.ClinicRepository.Delete(clinic);
+            return result && await unitOfWork.SaveAsync() > 0;
         }
         public async Task<Clinic?> GetClinicAsync(int id)
         {
