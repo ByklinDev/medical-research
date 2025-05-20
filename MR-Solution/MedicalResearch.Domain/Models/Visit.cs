@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Visit: Entiny
+    public class Visit: Entity
     {
         public int ClinicId { get; set; }
         public Clinic Clinic { get; set; } = new ();

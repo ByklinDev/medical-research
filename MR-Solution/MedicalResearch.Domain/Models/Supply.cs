@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Supply: Entiny
+    public class Supply: Entity
     {
         public DateTime DateArrival { get; set; }
         public int Amount { get; set; }

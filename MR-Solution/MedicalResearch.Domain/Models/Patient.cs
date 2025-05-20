@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Patient: Entiny
+    public class Patient: Entity
     {
         public string Number { get; set; } = string.Empty;
         public int ClinicId { get; set; }

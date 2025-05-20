@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.DAL.Repositories
 {
-    internal class BaseRepository<T> : IBaseRepository<T> where T : Entiny
+    internal class BaseRepository<T> : IBaseRepository<T> where T : Entity
     {
         private readonly MedicalResearchDbContext _context;
         protected readonly DbSet<T> _dbSet;
