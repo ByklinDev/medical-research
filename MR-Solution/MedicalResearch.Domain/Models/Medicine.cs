@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class Medicine: TEntiny
+    public class Medicine: Entiny
     {
         [Required]
         public string Description { get; set; } = string.Empty;

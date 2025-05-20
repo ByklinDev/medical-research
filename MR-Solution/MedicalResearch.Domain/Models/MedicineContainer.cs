@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class MedicineContainer: TEntiny
+    public class MedicineContainer: Entiny
     {
         public string Name { get; set; } = string.Empty;
         public List<Medicine> Medicines { get; set; } = [];

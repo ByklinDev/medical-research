@@ -15,6 +15,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IValidator<User>, UserValidator>();
+builder.Services.AddScoped<IValidator<Clinic>, ClinicValidator>();
+builder.Services.AddScoped<IValidator<DosageForm>, DosageFormValidator>();
+builder.Services.AddScoped<IValidator<MedicineContainer>, MedicineContainerValidator>();
+builder.Services.AddScoped<IValidator<MedicineType>, MedicineTypeValidator>();
+builder.Services.AddScoped<IValidator<Medicine>, MedicineValidator>();
+builder.Services.AddScoped<IValidator<Patient>, PatientValidator>();
+builder.Services.AddScoped<IValidator<Role>, RoleValidator>();
 
 
 DALRegistrator.RegisterService(builder.Services, builder.Configuration, builder.Environment.IsDevelopment());

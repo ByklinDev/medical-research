@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Interfaces.Repository
 {
-    public interface IBaseRepository<T> where T : TEntiny
+    public interface IBaseRepository<T> where T : Entiny
     {
         Task<T> AddAsync(T entity);
         bool Delete(T entity);

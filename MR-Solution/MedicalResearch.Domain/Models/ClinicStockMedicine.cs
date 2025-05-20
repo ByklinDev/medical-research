@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public class ClinicStockMedicine: TEntiny
+    public class ClinicStockMedicine: Entiny
     {
         public int Amount { get; set; }
         public int ClinicId { get; set; }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearch.Domain.Models
 {
-    public abstract class TEntiny
+    public abstract class Entiny
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
