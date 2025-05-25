@@ -57,5 +57,11 @@ namespace MedicalResearch.Domain.Services
             var updated = unitOfWork.PatientRepository.Update(existingPatient);
             return await unitOfWork.SaveAsync() > 0 ? updated : throw new DomainException("Patient not updated");
         }
+
+        public Patient? GetPatientByNumber(string number)
+        {
+            return unitOfWork.PatientRepository.Get(x => x.Number.Equals(number)).ToList().FirstOrDefault();
+        }
+
     }   
 }

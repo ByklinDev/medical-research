@@ -50,6 +50,7 @@ namespace MedicalResearch.DAL.DataContext
             modelBuilder.Entity<MedicineType>().HasIndex(p => p.Name).IsUnique();
             modelBuilder.Entity<DosageForm>().HasIndex(p => p.Name).IsUnique();
             modelBuilder.Entity<Role>().HasIndex(p => p.Name).IsUnique();
+            modelBuilder.Entity<Patient>().HasIndex(p => p.Number).IsUnique();
 
             modelBuilder.Entity<Role>().HasData(new Role() { Id = 1, Name = "Admin" });
             modelBuilder.Entity<Role>().HasData(new Role() { Id = 2, Name = "Sponsor" });
