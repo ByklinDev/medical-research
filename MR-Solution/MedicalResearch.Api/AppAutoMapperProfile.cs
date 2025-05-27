@@ -49,9 +49,6 @@ namespace MedicalResearch.Api
             CreateMap<Visit, VisitDTO>();
             CreateMap<VisitDTO, Visit>();
             CreateMap<VisitCreateDTO, Visit>();
-
-
-
         }
     }   
 }

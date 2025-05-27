@@ -21,7 +21,7 @@ namespace MedicalResearch.Domain.Services
             {
                 throw new DomainException(validationResult.Errors.First().ErrorMessage);
             }
-            var existingPatient = unitOfWork.PatientRepository.Get(x => x.ClinicId.Equals(patient.ClinicId) && x.Number.Equals(patient.Number)).FirstOrDefault();
+            var existingPatient = await unitOfWork.PatientRepository.GetPatientByNumber(patient.Number);
             if (existingPatient != null) 
             {
                 throw new DomainException("Patient with this number already exists");
@@ -58,9 +58,9 @@ namespace MedicalResearch.Domain.Services
             return await unitOfWork.SaveAsync() > 0 ? updated : throw new DomainException("Patient not updated");
         }
 
-        public Patient? GetPatientByNumber(string number)
+        public async Task<Patient?> GetPatientByNumber(string number)
         {
-            return unitOfWork.PatientRepository.Get(x => x.Number.Equals(number)).ToList().FirstOrDefault();
+            return await unitOfWork.PatientRepository.GetPatientByNumber(number);
         }
 
     }   

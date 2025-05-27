@@ -54,7 +54,7 @@ namespace MedicalResearch.DAL.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public virtual IEnumerable<T> Get(
+        public virtual async Task<IEnumerable<T>> Get(
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             string includeProperties = "")
@@ -74,11 +74,11 @@ namespace MedicalResearch.DAL.Repositories
 
             if (orderBy != null)
             {
-                return orderBy(query).ToList();
+                return await orderBy(query).ToListAsync();
             }
             else
             {
-                return query.ToList();
+                return await query.ToListAsync();
             }
         }
     }

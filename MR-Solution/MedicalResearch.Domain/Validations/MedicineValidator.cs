@@ -34,7 +34,7 @@ namespace MedicalResearch.Domain.Validations
                 .WithMessage("Medicine Container does not exist.");
             RuleFor(m => m.ExpireAt)
                 .NotEmpty().WithMessage("Expiration Date is required.")
-                .GreaterThan(DateTime.Now).WithMessage("Expiration Date must be in the future.");
+                .GreaterThan(DateTime.UtcNow).WithMessage("Expiration Date must be in the future.");
             RuleFor(m => m.Amount)
                 .NotEmpty().WithMessage("Amount is required.")
                 .GreaterThan(0).WithMessage("Amount must be greater than 0.");
@@ -44,7 +44,7 @@ namespace MedicalResearch.Domain.Validations
                 .WithMessage("Medicine Type does not exist.");
             RuleFor(m => m.CreatedAt)
                 .NotEmpty().WithMessage("Creation Date is required.")
-                .LessThanOrEqualTo(DateTime.Now).WithMessage("Creation Date must be in the past or present.");
+                .LessThanOrEqualTo(DateTime.UtcNow).WithMessage("Creation Date must be in the past or present.");
             RuleFor(m => m.State)
                 .NotEmpty().WithMessage("State is required.")
                 .IsInEnum().WithMessage("State must be a valid enum value.");

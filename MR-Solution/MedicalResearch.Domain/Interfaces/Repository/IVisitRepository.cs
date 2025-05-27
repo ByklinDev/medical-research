@@ -10,5 +10,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     public interface IVisitRepository: IBaseRepository<Visit>
     {
         int GetNumberOfNextVisit(int patientId);
+        Task<List<Visit>> GetVisitsOfPatient(int patientId);
     }
 }

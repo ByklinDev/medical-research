@@ -14,6 +14,6 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<Patient> UpdatePatientAsync(Patient patient);
         Task<Patient?> GetPatientAsync(int id);
         Task<List<Patient>> GetPatientsAsync();
-        Patient? GetPatientByNumber(string number);
+        Task<Patient?> GetPatientByNumber(string number);
     }
 }
