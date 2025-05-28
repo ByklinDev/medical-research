@@ -15,6 +15,11 @@ namespace MedicalResearch.DAL.Repositories
         public int GetNumberOfNextVisit(int patientId)
         {
             return _dbSet.Where(x => x.PatientId == patientId).Max(v => v.NumberOfVisit);
-        }   
+        } 
+        
+        public async Task<List<Visit>> GetVisitsOfPatient(int patientId)
+        {
+            return await _dbSet.Where(x => x.PatientId == patientId).ToListAsync();
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
 {
     public interface IPatientRepository: IBaseRepository<Patient>
     {
+        Task<Patient?> GetPatientByNumber(string number);
     }
 }

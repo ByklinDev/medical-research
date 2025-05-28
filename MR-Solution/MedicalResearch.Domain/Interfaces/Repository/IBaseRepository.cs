@@ -14,6 +14,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
         T Update(T entity);
         Task<List<T>> GetAllAsync();
         Task<T?> GetByIdAsync(int id);
-        IEnumerable<T> Get(System.Linq.Expressions.Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, string includeProperties = "");
+       
     }
 }

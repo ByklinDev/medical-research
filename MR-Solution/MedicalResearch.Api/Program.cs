@@ -1,5 +1,7 @@
 using System.Reflection;
 using FluentValidation;
+using MedicalResearch.Api;
+using MedicalResearch.Api.DTO;
 using MedicalResearch.DAL.DataContext;
 using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Models;
@@ -13,7 +15,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddAutoMapper(typeof(AppAutoMapperProfile).Assembly);
 builder.Services.AddScoped<IValidator<User>, UserValidator>();
 builder.Services.AddScoped<IValidator<Clinic>, ClinicValidator>();
 builder.Services.AddScoped<IValidator<DosageForm>, DosageFormValidator>();
@@ -22,7 +24,8 @@ builder.Services.AddScoped<IValidator<MedicineType>, MedicineTypeValidator>();
 builder.Services.AddScoped<IValidator<Medicine>, MedicineValidator>();
 builder.Services.AddScoped<IValidator<Patient>, PatientValidator>();
 builder.Services.AddScoped<IValidator<Role>, RoleValidator>();
-
+builder.Services.AddScoped<IValidator<UserCreateDTO>, CreateUserDTOValidator>();
+builder.Services.AddScoped<IValidator<Supply>, SupplyValidator>();
 
 DALRegistrator.RegisterService(builder.Services, builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

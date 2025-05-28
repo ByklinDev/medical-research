@@ -13,6 +13,7 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<bool> DeletePatientAsync(int id);
         Task<Patient> UpdatePatientAsync(Patient patient);
         Task<Patient?> GetPatientAsync(int id);
-        Task<List<Patient>> GetPatientsAsync(); 
+        Task<List<Patient>> GetPatientsAsync();
+        Task<Patient?> GetPatientByNumber(string number);
     }
 }

@@ -12,5 +12,9 @@ namespace MedicalResearch.DAL.Repositories
 {
     internal class PatientRepository(MedicalResearchDbContext _context) : BaseRepository<Patient>(_context), IPatientRepository
     {
+        public async Task<Patient?> GetPatientByNumber(string number)
+        {
+            return await _dbSet.FirstOrDefaultAsync(x => x.Number == number);
+        }
     }
 }

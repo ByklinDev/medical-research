@@ -17,7 +17,8 @@ namespace MedicalResearch.Domain.Services
         {
             var medicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(visit.MedicineId, visit.ClinicId) ?? throw new DomainException("Medicine not found");
             var clinic = await unitOfWork.ClinicRepository.GetByIdAsync(visit.ClinicId) ?? throw new DomainException("Clinic not found");
-            var existedVisit =  unitOfWork.VisitRepository.Get(x => x.ClinicId.Equals(visit.ClinicId) && x.DateOfVisit.Equals(visit.DateOfVisit) && x.PatientId.Equals(visit.PatientId));
+            var existedVisits = await unitOfWork.VisitRepository.GetVisitsOfPatient(visit.PatientId);
+            var existedVisit = existedVisits.FirstOrDefault(x => x.ClinicId.Equals(visit.ClinicId) && x.DateOfVisit.Equals(visit.DateOfVisit));
             if (existedVisit != null) 
             {
                 throw new DomainException("Visit already exists");
@@ -68,7 +69,8 @@ namespace MedicalResearch.Domain.Services
             existingVisit.ClinicId = visit.ClinicId;
             existingVisit.PatientId = visit.PatientId;
             existingVisit.MedicineId = visit.MedicineId;
-            var existedNumber = unitOfWork.VisitRepository.Get(x => x.ClinicId.Equals(visit.ClinicId) && x.PatientId.Equals(visit.PatientId) && x.NumberOfVisit.Equals(visit.NumberOfVisit));
+            var existedVisits = await unitOfWork.VisitRepository.GetVisitsOfPatient(visit.PatientId);
+            var existedNumber =  existedVisits.FirstOrDefault(x => x.ClinicId.Equals(visit.ClinicId) && x.PatientId.Equals(visit.PatientId) && x.NumberOfVisit.Equals(visit.NumberOfVisit));
             if (existedNumber != null)
             {
                 throw new DomainException("Number of visit already exists");
