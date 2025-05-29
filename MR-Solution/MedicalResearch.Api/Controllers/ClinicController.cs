@@ -2,6 +2,7 @@
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using MedicalResearch.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,13 +16,21 @@ namespace MedicalResearch.Api.Controllers
     {
         // GET: api/<ClinicController>
         [HttpGet]
-        public async Task<ActionResult<List<ClinicDTO>>> GetClinics()
+        public async Task<ActionResult<List<ClinicDTO>>> GetClinics([FromQuery] Query query)
         {
-            var clinics = await clinicService.GetClinicsAsync();
+            var clinics = await clinicService.GetClinicsAsync(query);
             var clinicDTOs = mapper.Map<List<ClinicDTO>>(clinics);
             return Ok(clinicDTOs);
         }
 
+        // GET: api/<ClinicController>
+        [HttpGet("ByName")]
+        public async Task<ActionResult<List<ClinicDTO>>> GetClinicsByNameAsync([FromQuery] Query query)
+        {
+            var clinics = await clinicService.GetClinicsByNameAsync(query);
+            var clinicDTOs = mapper.Map<List<ClinicDTO>>(clinics);
+            return Ok(clinicDTOs);
+        }
         // GET api/<ClinicController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ClinicDTO>> GetClinic(int id)

@@ -1,6 +1,7 @@
 ﻿using MedicalResearch.DAL.DataContext;
 using MedicalResearch.Domain.Interfaces.Repository;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -38,9 +39,9 @@ namespace MedicalResearch.DAL.Repositories
             return true;
         }
 
-        public virtual async Task<List<T>> GetAllAsync()
+        public virtual async Task<List<T>> GetAllAsync(Query query)
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet.Skip(query.Skip).Take(query.Take > 0 ? query.Take : Int32.MaxValue).ToListAsync();
         }
 
         public virtual T Update(T entity)

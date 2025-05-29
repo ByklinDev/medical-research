@@ -2,6 +2,7 @@
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -15,9 +16,9 @@ namespace MedicalResearch.Api.Controllers
     {
         // GET: api/<PatientController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PatientDTO>>> GetPatients()
+        public async Task<ActionResult<IEnumerable<PatientDTO>>> GetPatients([FromQuery] Query query)
         {
-            var patients = await patientService.GetPatientsAsync();
+            var patients = await patientService.GetPatientsAsync(query);
             var patientDTOs = mapper.Map<List<PatientDTO>>(patients);
             return Ok(patientDTOs);
         }

@@ -31,8 +31,6 @@ namespace MedicalResearch.Api
             CreateMap<Supply, SupplyDTO>();
             CreateMap<SupplyDTO, Supply>();
             CreateMap<SupplyCreateDTO, Supply>();
-            CreateMap<List<SupplyDTO>, List<Supply>>();
-            CreateMap<List<Supply>, List<SupplyDTO>>();
 
             CreateMap<Patient, PatientDTO>();
             CreateMap<PatientDTO, Patient>();

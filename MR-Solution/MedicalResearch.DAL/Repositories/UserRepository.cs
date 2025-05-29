@@ -1,6 +1,8 @@
 ﻿using MedicalResearch.DAL.DataContext;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Repository;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,16 @@ namespace MedicalResearch.DAL.Repositories
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             return await _dbSet.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Email == email);
+        }
+        public async Task<List<User>> SearchByTermAsync(Query query)
+        {
+            return await _dbSet
+                .SearchByTerm(query.SearchTerm)
+                .Skip(query.Skip)
+                .Take(query.Take > 0 ? query.Take : Int32.MaxValue)
+                .OrderByDescending(t => t.LastName)
+                .AsNoTracking()
+                .ToListAsync();
         }
     }
 }

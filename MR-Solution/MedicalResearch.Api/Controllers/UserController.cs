@@ -4,6 +4,7 @@ using MedicalResearch.Api.DTO;
 using MedicalResearch.Domain.Enums;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using MedicalResearch.Domain.Validations;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata.Ecma335;
@@ -16,10 +17,17 @@ namespace MedicalResearch.Api.Controllers
     {
         // GET: api/<UserController>
         [HttpGet]
-        public async Task<ActionResult<List<UserDTO>>> GetUsers()
+        public async Task<ActionResult<List<UserDTO>>> GetUsers([FromQuery] Query query)
         {
-            var users = await userService.GetUsersAsync();
+            var users = await userService.GetUsersAsync(query);
             return  Ok(mapper.Map<List<UserDTO>>(users));
+        }
+
+        [HttpGet("ByName")]
+        public async Task<ActionResult<List<UserDTO>>> GetUsersByNameAsync([FromQuery] Query query)
+        {
+            var users = await userService.GetUsersByNameAsync(query);
+            return Ok(mapper.Map<List<UserDTO>>(users));
         }
 
         // GET api/<UserController>/5
@@ -54,7 +62,7 @@ namespace MedicalResearch.Api.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("AddRoleToUser")]
         public async Task<ActionResult> AddUserRole([FromBody] int userId, int roleId)
         {
             var user = await userService.GetUserAsync(userId);
@@ -93,7 +101,7 @@ namespace MedicalResearch.Api.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("ChangeUserState")]
         public async Task<ActionResult<UserState>> SetUserState([FromBody] int userId, UserState state)
         {
             var user = await userService.GetUserAsync(userId);
@@ -130,7 +138,7 @@ namespace MedicalResearch.Api.Controllers
             return Ok(isDeleted);
         }
 
-        [HttpDelete]
+        [HttpDelete("DeleteRoleFromUser")]
         public async Task<ActionResult> DeleteUserRole([FromBody] int userId, int roleId)
         {
             var user = await userService.GetUserAsync(userId);

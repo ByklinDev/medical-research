@@ -2,6 +2,7 @@
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -14,13 +15,20 @@ namespace MedicalResearch.Api.Controllers
     {
         // GET: api/<DosageFormController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DosageFormDTO>>> GetDosageForms()
+        public async Task<ActionResult<IEnumerable<DosageFormDTO>>> GetDosageForms([FromQuery] Query query)
         {
-            var dosageForms = await dosageFormService.GetDosageFormsAsync();
+            var dosageForms = await dosageFormService.GetDosageFormsAsync(query);
             var dosageFormDTOs = mapper.Map<List<DosageFormDTO>>(dosageForms);
             return Ok(dosageFormDTOs);
         }
 
+        [HttpGet("ByName")]
+        public async Task<ActionResult<IEnumerable<DosageFormDTO>>> GetDosageFormsByNameAsync([FromQuery] Query query)
+        {
+            var dosageForms = await dosageFormService.GetDosageFormsByNameAsync(query);
+            var dosageFormDTOs = mapper.Map<List<DosageFormDTO>>(dosageForms);
+            return Ok(dosageFormDTOs);
+        }
         // GET api/<DosageFormController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<DosageFormDTO>> GetDosageForm(int id)

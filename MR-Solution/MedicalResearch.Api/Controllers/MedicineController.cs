@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Domain.Interfaces.Service;
+using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -13,9 +14,17 @@ namespace MedicalResearch.Api.Controllers
     {
         // GET: api/<MedicineController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MedicineDTO>>> GetMedicines()
+        public async Task<ActionResult<IEnumerable<MedicineDTO>>> GetMedicines([FromQuery] Query query)
         {
-            var medicines = await medicineService.GetMedicinesAsync();
+            var medicines = await medicineService.GetMedicinesAsync(query);
+            var medicineDTOs = mapper.Map<List<MedicineDTO>>(medicines);
+            return Ok(medicineDTOs);
+        }
+
+        [HttpGet("ByName")]
+        public async Task<ActionResult<IEnumerable<MedicineDTO>>> GetMedicinesByNameAsync([FromQuery] Query query)
+        {
+            var medicines = await medicineService.GetMedicinesByNameAsync(query);
             var medicineDTOs = mapper.Map<List<MedicineDTO>>(medicines);
             return Ok(medicineDTOs);
         }

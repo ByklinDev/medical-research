@@ -1,4 +1,5 @@
 ﻿using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<bool> DeleteMedicineContainerAsync(int id);
         Task<MedicineContainer> UpdateMedicineContainerAsync(MedicineContainer medicineContainer);
         Task<MedicineContainer?> GetMedicineContainerAsync(int id);
-        Task<List<MedicineContainer>> GetMedicineContainersAsync();
+        Task<List<MedicineContainer>> GetMedicineContainersAsync(Query query);
+        Task<List<MedicineContainer>> GetMedicineContainersByNameAsync(Query query);
     }
 }

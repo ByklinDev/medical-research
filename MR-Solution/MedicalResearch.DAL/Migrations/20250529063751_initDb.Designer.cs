@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedicalResearch.DAL.Migrations
 {
     [DbContext(typeof(MedicalResearchDbContext))]
-    [Migration("20250510091509_NumberOfPatient")]
-    partial class NumberOfPatient
+    [Migration("20250529063751_initDb")]
+    partial class initDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -349,6 +349,9 @@ namespace MedicalResearch.DAL.Migrations
 
                     b.HasIndex("ClinicId");
 
+                    b.HasIndex("Number")
+                        .IsUnique();
+
                     b.ToTable("Patients", (string)null);
 
                     b.UseTpcMappingStrategy();
@@ -489,8 +492,8 @@ namespace MedicalResearch.DAL.Migrations
                             FirstName = "Admin",
                             Initials = "",
                             LastName = "",
-                            Password = "NN2UYK0GaglNHHPmmtV+PWZwidOXz2FGVOyijjcJPkQ=",
-                            PaswordSalt = new byte[] { 108, 84, 39, 88, 8, 173, 154, 70, 104, 165, 114, 83, 94, 31, 23, 149, 2, 55, 233, 24, 111, 98, 182, 231, 121, 154, 211, 207, 114, 42, 192, 1 },
+                            Password = "0m5ILJlS4vE+9gsxEmgX2/KGhmeCBGyekUjYTq1/CgY=",
+                            PaswordSalt = new byte[] { 93, 61, 5, 143, 108, 94, 214, 190, 104, 158, 126, 120, 116, 41, 15, 150, 148, 126, 236, 66, 236, 242, 31, 177, 156, 197, 29, 84, 196, 192, 202, 173 },
                             State = 0
                         });
                 });

@@ -1,5 +1,6 @@
 ﻿using MedicalResearch.Domain.Enums;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +15,11 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<bool> DeleteUserAsync(int id);
         Task<User> UpdateUserAsync(User user);
         Task<User?> GetUserAsync(int id);
-        Task<List<User>> GetUsersAsync();
+        Task<List<User>> GetUsersAsync(Query query);
         Task<User?> GetUserByEmailAsync(string email);
         Task<bool> AddUserRole(User user, Role role);
         Task<bool> DeleteUserRole(User user, Role role);
         Task<UserState> SetState(User user, UserState state);
+        Task<List<User>> GetUsersByNameAsync(Query query);
     }
 }

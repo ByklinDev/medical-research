@@ -1,4 +1,5 @@
 ﻿using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<bool> DeleteClinicAsync(int id);
         Task<Clinic> UpdateClinicAsync(Clinic clinic);
         Task<Clinic?> GetClinicAsync(int id);
-        Task<List<Clinic>> GetClinicsAsync();
+        Task<List<Clinic>> GetClinicsAsync(Query query);
+        Task<List<Clinic>> GetClinicsByNameAsync(Query query);
     }
 }

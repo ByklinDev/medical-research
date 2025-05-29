@@ -3,6 +3,7 @@ using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,9 +16,17 @@ namespace MedicalResearch.Api.Controllers
     {
         // GET: api/<SupplyController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSupplies()
+        public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSupplies([FromQuery] Query query)
         {
-            var supplies = await supplyService.GetSuppliesAsync();
+            var supplies = await supplyService.GetSuppliesAsync(query);
+            var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
+            return Ok(supplyDTOs);
+        }
+
+        [HttpGet("ByName")]
+        public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByNameAsync([FromQuery] Query query)
+        {
+            var supplies = await supplyService.GetSuppliesByNameAsync(query);
             var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
             return Ok(supplyDTOs);
         }
@@ -36,7 +45,7 @@ namespace MedicalResearch.Api.Controllers
         }
 
         // POST api/<SupplyController>
-        [HttpPost]
+        [HttpPost("AddItem")]
         public async Task<ActionResult<SupplyDTO>> AddToSupply([FromBody] Medicine medicine, int amount, int clinicId)
         {
             var resultMedicineValidation = medicineValidator.Validate(medicine);
@@ -58,9 +67,9 @@ namespace MedicalResearch.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<SupplyDTO>> AddSupply([FromBody] List<SupplyDTO> supplyDTOs)
         {
-            var supplies = mapper.Map<List<Supply>>(supplyDTOs);
+            var supplies = supplyDTOs.Select(mapper.Map<SupplyDTO, Supply>).ToList();
             var addedSupplies = await supplyService.AddSupplyAsync(supplies);
-            var supplyDTOsResult = mapper.Map<List<SupplyDTO>>(addedSupplies);
+            var supplyDTOsResult = addedSupplies.Select(mapper.Map<Supply, SupplyDTO>).ToList();
             if (supplyDTOsResult == null || !supplyDTOsResult.Any())
             {
                 return BadRequest("No supplies were added.");

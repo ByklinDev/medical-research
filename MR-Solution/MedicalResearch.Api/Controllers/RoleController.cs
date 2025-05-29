@@ -2,6 +2,7 @@
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -14,10 +15,16 @@ namespace MedicalResearch.Api.Controllers
     {
         // GET: api/<RoleController>
         [HttpGet]
-        public async Task<List<RoleDTO>> GetRoles()
+        public async Task<List<RoleDTO>> GetRoles([FromQuery] Query query)
         {
-            var roles = await roleService.GetRolesAsync();
+            var roles = await roleService.GetRolesAsync(query);
             return mapper.Map<List<RoleDTO>>(roles);        
+        }
+        [HttpGet("ByName")]
+        public async Task<List<RoleDTO>> GetRolesByNameAsync([FromQuery] Query query)
+        {
+            var roles = await roleService.GetRolesByNameAsync(query);
+            return mapper.Map<List<RoleDTO>>(roles);
         }
 
         // GET api/<RoleController>/5

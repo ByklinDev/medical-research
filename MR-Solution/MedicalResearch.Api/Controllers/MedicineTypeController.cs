@@ -2,6 +2,7 @@
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -14,13 +15,20 @@ namespace MedicalResearch.Api.Controllers
     {
         // GET: api/<MedicineTypeController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MedicineTypeDTO>>> GetMedicineTypes()
+        public async Task<ActionResult<IEnumerable<MedicineTypeDTO>>> GetMedicineTypes([FromQuery] Query query)
         {
-            var medicineTypes = await medicineTypeService.GetMedicineTypesAsync();
+            var medicineTypes = await medicineTypeService.GetMedicineTypesAsync(query);
             var medicineTypeDTOs = mapper.Map<List<MedicineTypeDTO>>(medicineTypes);
             return Ok(medicineTypeDTOs);
         }
 
+        [HttpGet("ByName")]
+        public async Task<ActionResult<IEnumerable<MedicineTypeDTO>>> GetMedicineTypesByNameAsync([FromQuery] Query query)
+        {
+            var medicineTypes = await medicineTypeService.GetMedicineTypesByNameAsync(query);
+            var medicineTypeDTOs = mapper.Map<List<MedicineTypeDTO>>(medicineTypes);
+            return Ok(medicineTypeDTOs);
+        }
         // GET api/<MedicineTypeController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<MedicineTypeDTO>> GetMedicineType(int id)

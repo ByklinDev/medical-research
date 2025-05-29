@@ -115,6 +115,7 @@ namespace MedicalResearch.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"PatientSequence\"')"),
+                    Number = table.Column<string>(type: "text", nullable: false),
                     ClinicId = table.Column<int>(type: "integer", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Sex = table.Column<int>(type: "integer", nullable: false),
@@ -383,7 +384,7 @@ namespace MedicalResearch.DAL.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "ClinicId", "Email", "FirstName", "Initials", "LastName", "Password", "PaswordSalt", "State" },
-                values: new object[] { 1, null, "byklin@list.ru", "Admin", "", "", "3bu3siTYGhzJpkFjDqOKhsJrXPcczhf2uyVKSkSuH/0=", new byte[] { 40, 200, 213, 204, 217, 250, 135, 110, 27, 232, 124, 154, 228, 27, 82, 221, 124, 68, 216, 157, 79, 122, 104, 179, 78, 185, 172, 117, 214, 140, 132, 172 }, 0 });
+                values: new object[] { 1, null, "byklin@list.ru", "Admin", "", "", "0m5ILJlS4vE+9gsxEmgX2/KGhmeCBGyekUjYTq1/CgY=", new byte[] { 93, 61, 5, 143, 108, 94, 214, 190, 104, 158, 126, 120, 116, 41, 15, 150, 148, 126, 236, 66, 236, 242, 31, 177, 156, 197, 29, 84, 196, 192, 202, 173 }, 0 });
 
             migrationBuilder.InsertData(
                 table: "UserRole",
@@ -448,6 +449,12 @@ namespace MedicalResearch.DAL.Migrations
                 name: "IX_Patients_ClinicId",
                 table: "Patients",
                 column: "ClinicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Patients_Number",
+                table: "Patients",
+                column: "Number",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Roles_Name",

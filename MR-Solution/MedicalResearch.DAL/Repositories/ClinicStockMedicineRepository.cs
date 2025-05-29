@@ -1,6 +1,8 @@
 ﻿using MedicalResearch.DAL.DataContext;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Repository;
 using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -26,6 +28,17 @@ namespace MedicalResearch.DAL.Repositories
                 .Include(x => x.Clinic)
                 .Include(x => x.Medicine)
                 .FirstOrDefaultAsync(x => (x.ClinicId == clinicId) && (x.MedicineId == medicineId));
-        }  
+        }
+
+        public async Task<List<ClinicStockMedicine>> SearchByTermAsync(int clinicId, Query query)
+        {
+            return await _dbSet
+               .SearchByTermAndClinic(query.SearchTerm, clinicId)
+               .Skip(query.Skip)
+               .Take(query.Take > 0 ? query.Take : Int32.MaxValue)
+               .OrderByDescending(t => t.Medicine.Description)
+               .AsNoTracking()
+               .ToListAsync();
+        }
     }
 }
