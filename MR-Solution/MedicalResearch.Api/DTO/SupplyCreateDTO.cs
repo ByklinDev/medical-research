@@ -8,5 +8,7 @@
 
         public int MedicineId { get; set; }
 
+        public int UserId { get; set; }
+
     }
 }

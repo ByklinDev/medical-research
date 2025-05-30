@@ -1,120 +1,242 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using MedicalResearch.Api.DTO;
+using MedicalResearch.Api.DTOValidators;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace MedicalResearch.Api.Controllers
+namespace MedicalResearch.Api.Controllers;
+
+[Route("api/Supplies")]
+[ApiController]
+public class SupplyController(IMapper mapper,
+                              ISupplyService supplyService,
+                              IServiceProvider serviceProvider,
+                              IValidator<Medicine> medicineValidator,
+                              IValidator<Supply> supplyValidator,
+                              IUserService userService,
+                              IValidator<SupplyCreateDTO> supplyCreateValidator,
+                              IMedicineService medicineService) : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class SupplyController(IMapper mapper, ISupplyService supplyService, IValidator<Medicine> medicineValidator, IValidator<Supply> supplyValidator) : ControllerBase
+    // GET: api/<SupplyController>
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesAsync([FromQuery] QueryDTO queryDTO)
     {
-        // GET: api/<SupplyController>
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSupplies([FromQuery] Query query)
+        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
+                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
+        if (validator == null)
         {
-            var supplies = await supplyService.GetSuppliesAsync(query);
-            var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
-            return Ok(supplyDTOs);
+            return BadRequest("No suitable validator found for QueryDTO<Supply>");
         }
-
-        [HttpGet("ByName")]
-        public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByNameAsync([FromQuery] Query query)
+        var validationResult = await validator.ValidateAsync(queryDTO);
+        if (!validationResult.IsValid)
         {
-            var supplies = await supplyService.GetSuppliesByNameAsync(query);
-            var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
-            return Ok(supplyDTOs);
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
         }
+        var query = mapper.Map<Query>(queryDTO);
+        var supplies = await supplyService.GetSuppliesAsync(null, null, query);
+        var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
+        return Ok(supplyDTOs);
+    }
 
-        // GET api/<SupplyController>/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<SupplyDTO>> GetSupply(int id)
+    [HttpGet("Clinic/{clinicId}")]
+    public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByClinicAsync(int clinicId, [FromQuery] QueryDTO queryDTO)
+    {
+        if (clinicId <= 0)
         {
-            var supply = await supplyService.GetSupplyAsync(id);
-            if (supply == null)
-            {
-                return NotFound();
-            }
-            var supplyDTO = mapper.Map<SupplyDTO>(supply);
-            return Ok(supplyDTO);
+            return BadRequest("Invalid clinic ID.");
         }
-
-        // POST api/<SupplyController>
-        [HttpPost("AddItem")]
-        public async Task<ActionResult<SupplyDTO>> AddToSupply([FromBody] Medicine medicine, int amount, int clinicId)
+        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
+                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
+        if (validator == null)
         {
-            var resultMedicineValidation = medicineValidator.Validate(medicine);
-            if (!resultMedicineValidation.IsValid)
-            {
-                return BadRequest(resultMedicineValidation.Errors);
-            }
-            var supply = await supplyService.AddToSupply(medicine, amount, clinicId);
-            var resultSupplyValidation = supplyValidator.Validate(supply);
-            if (!resultSupplyValidation.IsValid)
-            {
-                return BadRequest(resultSupplyValidation.Errors);
-            }
-            var supplyDTO = mapper.Map<SupplyDTO>(supply);
-            return Ok(supplyDTO);
+            return BadRequest("No suitable validator found for QueryDTO<Supply>");
         }
-
-
-        [HttpPost]
-        public async Task<ActionResult<SupplyDTO>> AddSupply([FromBody] List<SupplyDTO> supplyDTOs)
+        var validationResult = await validator.ValidateAsync(queryDTO);
+        if (!validationResult.IsValid)
         {
-            var supplies = supplyDTOs.Select(mapper.Map<SupplyDTO, Supply>).ToList();
-            var addedSupplies = await supplyService.AddSupplyAsync(supplies);
-            var supplyDTOsResult = addedSupplies.Select(mapper.Map<Supply, SupplyDTO>).ToList();
-            if (supplyDTOsResult == null || !supplyDTOsResult.Any())
-            {
-                return BadRequest("No supplies were added.");
-            }
-            return CreatedAtAction(nameof(GetSupplies), supplyDTOsResult);
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
         }
+        var query = mapper.Map<Query>(queryDTO);
+        var supplies = await supplyService.GetSuppliesAsync(clinicId, null, query);
+        var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
+        return Ok(supplyDTOs);
+    }
 
-        // PUT api/<SupplyController>/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult<SupplyDTO>> EditSupply(int id, [FromBody] SupplyDTO supplyDTO)
+    [HttpGet("Medicine/{medicineId}")]
+    public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByMedicineAsync(int medicineId, [FromQuery] QueryDTO queryDTO)
+    {
+        if (medicineId <= 0)
         {
-            if (id != supplyDTO.Id)
-            {
-                return BadRequest("Supply ID mismatch.");
-            }
-            var supply = mapper.Map<Supply>(supplyDTO);
-            var resultSupplyValidation = supplyValidator.Validate(supply);
-            if (!resultSupplyValidation.IsValid)
-            {
-                return BadRequest(resultSupplyValidation.Errors);
-            }
-            var updatedSupply = await supplyService.UpdateSupplyAsync(supply);
-            if (updatedSupply == null)
-            {
-                return NotFound();
-            }
-            var updatedSupplyDTO = mapper.Map<SupplyDTO>(updatedSupply);
-            return Ok(updatedSupplyDTO);
+            return BadRequest("Invalid medicine ID.");
         }
+        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
+                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
+        if (validator == null)
+        {
+            return BadRequest("No suitable validator found for QueryDTO<Supply>");
+        }
+        var validationResult = await validator.ValidateAsync(queryDTO);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
+        }
+        var query = mapper.Map<Query>(queryDTO);
+        var supplies = await supplyService.GetSuppliesAsync(null, medicineId, query);
+        var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
+        return Ok(supplyDTOs);
+    }
 
-        // DELETE api/<SupplyController>/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<bool>> DeleteSupply(int id)
+    [HttpGet("Clinic/{clinicId}/Medicine/{medicineId}")]
+    public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByMedicineAsync(int clinicId, int medicineId, [FromQuery] QueryDTO queryDTO)
+    {
+        if (clinicId <= 0 || medicineId <= 0)
         {
-            var supply = await supplyService.GetSupplyAsync(id);
-            if (supply == null)
-            {
-                return NotFound();
-            }
-            var isDeleted = await supplyService.DeleteSupplyAsync(id);
-            if (!isDeleted)
-            {
-                return BadRequest("Failed to delete supply.");
-            }
-            return Ok(isDeleted);
+            return BadRequest("Invalid clinic or medicine ID.");
         }
+        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
+                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
+        if (validator == null)
+        {
+            return BadRequest("No suitable validator found for QueryDTO<Supply>");
+        }
+        var validationResult = await validator.ValidateAsync(queryDTO);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
+        }
+        var query = mapper.Map<Query>(queryDTO);
+        var supplies = await supplyService.GetSuppliesAsync(clinicId, medicineId, query);
+        var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
+        return Ok(supplyDTOs);
+    }
+
+    [HttpGet("User/{userId}")]
+    public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetInactiveSuppliesByUserIdAsync(int userId, [FromQuery] QueryDTO queryDTO)
+    {
+        if (userId <= 0)
+        {
+            return BadRequest("Invalid user ID.");
+        }
+        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
+                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
+        if (validator == null)
+        {
+            return BadRequest("No suitable validator found for QueryDTO<Supply>");
+        }
+        var validationResult = await validator.ValidateAsync(queryDTO);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
+        }
+        var query = mapper.Map<Query>(queryDTO);
+        var user = await userService.GetUserAsync(userId);
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+        var supplies = await supplyService.GetInactiveSuppliesByUserIdAsync(userId, query);
+        var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
+        return Ok(supplyDTOs);
+    }
+
+
+    // GET api/<SupplyController>/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<SupplyDTO>> GetSupply(int id)
+    {
+        var supply = await supplyService.GetSupplyAsync(id);
+        if (supply == null)
+        {
+            return NotFound();
+        }
+        var supplyDTO = mapper.Map<SupplyDTO>(supply);
+        return Ok(supplyDTO);
+    }
+
+    // POST api/<SupplyController>
+    [HttpPost]
+    public async Task<ActionResult<SupplyDTO>> AddToSupply([FromBody] SupplyCreateDTO supplyCreateDTO)
+    {
+        var resultSupplyCreateValidation = supplyCreateValidator.Validate(supplyCreateDTO);
+        if (!resultSupplyCreateValidation.IsValid)
+        {
+            return BadRequest(resultSupplyCreateValidation.Errors);
+        }
+        var medicine = await medicineService.GetMedicineAsync(supplyCreateDTO.MedicineId);
+        if (medicine == null)
+        {
+            return NotFound("Medicine not found");
+        }
+        var resultMedicineValidation = medicineValidator.Validate(medicine);
+        if (!resultMedicineValidation.IsValid)
+        {
+            return BadRequest(resultMedicineValidation.Errors);
+        }
+        var supply = await supplyService.AddToSupply(medicine, supplyCreateDTO.Amount, supplyCreateDTO.ClinicId, supplyCreateDTO.UserId);
+        var resultSupplyValidation = supplyValidator.Validate(supply);
+        if (!resultSupplyValidation.IsValid)
+        {
+            return BadRequest(resultSupplyValidation.Errors);
+        }
+        var supplyDTO = mapper.Map<SupplyDTO>(supply);
+        return CreatedAtAction(nameof(GetSupply), new { id = supplyDTO.Id });
+    }
+
+
+    [HttpPatch("{userId}")]
+    public async Task<ActionResult<SupplyDTO>> AddSupply(int userId, [FromBody] List<SupplyDTO> supplyDTOs)
+    {
+        var supplies = supplyDTOs.Select(mapper.Map<SupplyDTO, Supply>).ToList();
+        var addedSupplies = await supplyService.AddSupplyAsync(supplies, userId);
+        var supplyDTOsResult = addedSupplies.Select(mapper.Map<Supply, SupplyDTO>).ToList();
+        if (supplyDTOsResult == null || !supplyDTOsResult.Any())
+        {
+            return BadRequest("No supplies were added.");
+        }
+        return CreatedAtAction(nameof(GetSuppliesAsync), supplyDTOsResult);
+    }
+
+    // PUT api/<SupplyController>/5
+    [HttpPut("{id}")]
+    public async Task<ActionResult<SupplyDTO>> EditSupply(int id, [FromBody] SupplyDTO supplyDTO)
+    {
+        if (id != supplyDTO.Id)
+        {
+            return BadRequest("Supply ID mismatch.");
+        }
+        var supply = mapper.Map<Supply>(supplyDTO);
+        var resultSupplyValidation = supplyValidator.Validate(supply);
+        if (!resultSupplyValidation.IsValid)
+        {
+            return BadRequest(resultSupplyValidation.Errors);
+        }
+        var updatedSupply = await supplyService.UpdateSupplyAsync(supply);
+        if (updatedSupply == null)
+        {
+            return NotFound();
+        }
+        var updatedSupplyDTO = mapper.Map<SupplyDTO>(updatedSupply);
+        return Ok(updatedSupplyDTO);
+    }
+
+    // DELETE api/<SupplyController>/5
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<bool>> DeleteSupply(int id)
+    {
+        var supply = await supplyService.GetSupplyAsync(id);
+        if (supply == null)
+        {
+            return NotFound();
+        }
+        var isDeleted = await supplyService.DeleteSupplyAsync(id);
+        if (!isDeleted)
+        {
+            return BadRequest("Failed to delete supply.");
+        }
+        return Ok(isDeleted);
     }
 }

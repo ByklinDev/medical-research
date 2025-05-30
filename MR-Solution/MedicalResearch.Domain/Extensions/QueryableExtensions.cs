@@ -22,6 +22,18 @@ namespace MedicalResearch.Domain.Extensions
                 EF.Functions.Like(x.Medicine.Description.ToLower(), $"%{term}%") && x.Amount > 0 && x.ClinicId.Equals(clinicId));
         }
 
+        public static IQueryable<ClinicStockMedicine> SearchByTerm(this IQueryable<ClinicStockMedicine> query, string? term )
+        {
+            if (string.IsNullOrEmpty(term))
+            {
+                return query;
+            }
+
+            term = term.Trim().ToLower();
+            return query.Where(x =>
+                EF.Functions.Like(x.Medicine.Description.ToLower(), $"%{term}%") && x.Amount > 0 );
+        }
+
         public static IQueryable<Clinic> SearchByTerm(this IQueryable<Clinic> query, string? term)
         {
             if (string.IsNullOrEmpty(term))
@@ -116,7 +128,6 @@ namespace MedicalResearch.Domain.Extensions
         }
 
 
-
         public static IQueryable<Supply> SearchByTerm(this IQueryable<Supply> query, string? term)
         {
             if (string.IsNullOrEmpty(term))
@@ -129,5 +140,16 @@ namespace MedicalResearch.Domain.Extensions
                 EF.Functions.Like(x.Medicine.Description.ToLower(), $"%{term}%") );
         }
 
+
+        public static IQueryable<Patient> SearchByTerm(this IQueryable<Patient> query, string? term)
+        {
+            if (string.IsNullOrEmpty(term))
+            {
+                return query;
+            }
+
+            term = term.Trim().ToLower();
+            return query.Where(x => EF.Functions.Like(x.Number.ToLower(), $"%{term}%"));
+        }
     }
 }

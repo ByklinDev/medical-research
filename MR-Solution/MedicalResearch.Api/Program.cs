@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using MedicalResearch.Api;
 using MedicalResearch.Api.DTO;
+using MedicalResearch.Api.DTOValidators;
 using MedicalResearch.Api.Middleware;
 using MedicalResearch.DAL.DataContext;
 using MedicalResearch.DAL.UnitOfWork;
@@ -38,6 +39,19 @@ builder.Services.AddScoped<IValidator<Patient>, PatientValidator>();
 builder.Services.AddScoped<IValidator<Role>, RoleValidator>();
 builder.Services.AddScoped<IValidator<UserCreateDTO>, CreateUserDTOValidator>();
 builder.Services.AddScoped<IValidator<Supply>, SupplyValidator>();
+builder.Services.AddScoped<IValidator<SupplyCreateDTO>, SupplyCreateDTOValidator>();
+
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Clinic>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<User>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<DosageForm>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Medicine>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<MedicineContainer>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<MedicineType>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Role>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Supply>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Visit>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Patient>>();
+builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<ClinicStockMedicine>>();
 
 builder.Services.AddScoped<IClinicService, ClinicService>();
 builder.Services.AddScoped<IDosageFormService, DosageFormService>();
@@ -63,8 +77,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseMiddleware<ExceptionMiddleware>();
+else
+{
+    app.UseMiddleware<ExceptionMiddleware>();
+}
+app.UseStatusCodePages();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

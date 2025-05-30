@@ -11,6 +11,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     public interface IClinicStockMedicineRepository: IBaseRepository<ClinicStockMedicine>
     {
         Task<ClinicStockMedicine?> GetClinicStockMedicineAsync(int clinicId, int medicineId);
-        Task<List<ClinicStockMedicine>> SearchByTermAsync(int clinicId, Query query);
+        Task<List<ClinicStockMedicine>> SearchByTermAsync(int? clinicId, Query query);
     }
 }

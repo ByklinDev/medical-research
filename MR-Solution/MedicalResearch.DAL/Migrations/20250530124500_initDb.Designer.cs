@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedicalResearch.DAL.Migrations
 {
     [DbContext(typeof(MedicalResearchDbContext))]
-    [Migration("20250529063751_initDb")]
+    [Migration("20250530124500_initDb")]
     partial class initDb
     {
         /// <inheritdoc />
@@ -420,7 +420,13 @@ namespace MedicalResearch.DAL.Migrations
                     b.Property<DateTime>("DateArrival")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("MedicineId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -428,6 +434,8 @@ namespace MedicalResearch.DAL.Migrations
                     b.HasIndex("ClinicId");
 
                     b.HasIndex("MedicineId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Supplies", (string)null);
 
@@ -492,8 +500,8 @@ namespace MedicalResearch.DAL.Migrations
                             FirstName = "Admin",
                             Initials = "",
                             LastName = "",
-                            Password = "0m5ILJlS4vE+9gsxEmgX2/KGhmeCBGyekUjYTq1/CgY=",
-                            PaswordSalt = new byte[] { 93, 61, 5, 143, 108, 94, 214, 190, 104, 158, 126, 120, 116, 41, 15, 150, 148, 126, 236, 66, 236, 242, 31, 177, 156, 197, 29, 84, 196, 192, 202, 173 },
+                            Password = "faEedsYMP273c0FVeJ/7qX39a3Is1ai7y/1jfGnGUrk=",
+                            PaswordSalt = new byte[] { 140, 49, 183, 189, 83, 185, 204, 190, 188, 207, 123, 61, 112, 47, 245, 234, 162, 204, 37, 154, 28, 149, 139, 244, 238, 78, 57, 196, 168, 186, 223, 98 },
                             State = 0
                         });
                 });
@@ -649,9 +657,17 @@ namespace MedicalResearch.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MedicalResearch.Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Clinic");
 
                     b.Navigation("Medicine");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.User", b =>

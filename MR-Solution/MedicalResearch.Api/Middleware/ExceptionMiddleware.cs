@@ -30,7 +30,7 @@ namespace MedicalResearch.Api.Middleware
 
                     case DomainException:
                         details = ex.Message;
-                        statusCode = (int)HttpStatusCode.InternalServerError;
+                        statusCode = (int)HttpStatusCode.BadRequest;
                         break;
                 }
 

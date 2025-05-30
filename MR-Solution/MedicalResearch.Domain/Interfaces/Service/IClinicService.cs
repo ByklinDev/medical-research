@@ -15,6 +15,5 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<Clinic> UpdateClinicAsync(Clinic clinic);
         Task<Clinic?> GetClinicAsync(int id);
         Task<List<Clinic>> GetClinicsAsync(Query query);
-        Task<List<Clinic>> GetClinicsByNameAsync(Query query);
     }
 }

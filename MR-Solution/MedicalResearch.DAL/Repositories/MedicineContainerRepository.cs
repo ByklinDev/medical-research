@@ -10,24 +10,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedicalResearch.DAL.Repositories
-{
-    internal class MedicineContainerRepository(MedicalResearchDbContext _context) : BaseRepository<MedicineContainer>(_context), IMedicineContainerRepository
-    {
-        public async Task<MedicineContainer?> GetMedicineContainerByNameAsync(string name)
-        {
-            return await _dbSet.FirstOrDefaultAsync(x => x.Name == name);
-        }
+namespace MedicalResearch.DAL.Repositories;
 
-        public async Task<List<MedicineContainer>> SearchByTermAsync(Query query)
+internal class MedicineContainerRepository(MedicalResearchDbContext _context) : BaseRepository<MedicineContainer>(_context), IMedicineContainerRepository
+{
+    public async Task<MedicineContainer?> GetMedicineContainerByNameAsync(string name)
+    {
+        return await _dbSet.FirstOrDefaultAsync(x => x.Name == name);
+    }
+
+    public async Task<List<MedicineContainer>> SearchByTermAsync(Query query)
+    {
+        var result = _dbSet.SearchByTerm(query.SearchTerm)
+                           .Skip(query.Skip)
+                           .Take(query.Take);
+        if (string.IsNullOrEmpty(query.SortColumn))
         {
-            return await _dbSet
-                .SearchByTerm(query.SearchTerm)
-                .Skip(query.Skip)
-                .Take(query.Take > 0 ? query.Take : Int32.MaxValue)
-                .OrderByDescending(t => t.Name)
-                .AsNoTracking()
-                .ToListAsync();
+            query.SortColumn = "Id";
         }
-    } 
+        var prop = typeof(MedicineContainer).GetProperty(query.SortColumn)?.Name ?? typeof(MedicineContainer).GetProperties().FirstOrDefault()?.Name;
+        if (prop != null)
+        {
+            if (query.IsAscending)
+            {
+                result = result.OrderBy(t => prop);
+            }
+            else
+            {
+                result = result.OrderByDescending(t => prop);
+            }
+        }
+        return await result.AsNoTracking().ToListAsync();
+    }
 }

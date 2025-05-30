@@ -15,6 +15,5 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<MedicineType> UpdateMedicineTypeAsync(MedicineType medicineType);
         Task<MedicineType?> GetMedicineTypeAsync(int id);
         Task<List<MedicineType>> GetMedicineTypesAsync(Query query);
-        Task<List<MedicineType>> GetMedicineTypesByNameAsync(Query query);
     }
 }

@@ -10,23 +10,35 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedicalResearch.DAL.Repositories
+namespace MedicalResearch.DAL.Repositories;
+
+internal class UserRepository(MedicalResearchDbContext _context): BaseRepository<User>(_context), IUserRepository
 {
-    internal class UserRepository(MedicalResearchDbContext _context): BaseRepository<User>(_context), IUserRepository
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
-        public async Task<User?> GetUserByEmailAsync(string email)
+        return await _dbSet.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Email == email);
+    }
+    public async Task<List<User>> SearchByTermAsync(Query query)
+    {
+        var result = _dbSet.SearchByTerm(query.SearchTerm)
+                           .Skip(query.Skip)
+                           .Take(query.Take);
+        if (string.IsNullOrEmpty(query.SortColumn))
         {
-            return await _dbSet.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Email == email);
+            query.SortColumn = "Id";
         }
-        public async Task<List<User>> SearchByTermAsync(Query query)
+        var prop = typeof(User).GetProperty(query.SortColumn)?.Name ?? typeof(User).GetProperties().FirstOrDefault()?.Name;
+        if (prop != null)
         {
-            return await _dbSet
-                .SearchByTerm(query.SearchTerm)
-                .Skip(query.Skip)
-                .Take(query.Take > 0 ? query.Take : Int32.MaxValue)
-                .OrderByDescending(t => t.LastName)
-                .AsNoTracking()
-                .ToListAsync();
+            if (query.IsAscending)
+            {
+                result = result.OrderBy(t => prop);
+            }
+            else
+            {
+                result = result.OrderByDescending(t => prop);
+            }
         }
+        return await result.AsNoTracking().ToListAsync();           
     }
 }

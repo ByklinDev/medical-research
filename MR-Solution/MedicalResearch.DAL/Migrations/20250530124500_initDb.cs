@@ -250,8 +250,10 @@ namespace MedicalResearch.DAL.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"SupplySequence\"')"),
                     DateArrival = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Amount = table.Column<int>(type: "integer", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     ClinicId = table.Column<int>(type: "integer", nullable: false),
-                    MedicineId = table.Column<int>(type: "integer", nullable: false)
+                    MedicineId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -266,6 +268,12 @@ namespace MedicalResearch.DAL.Migrations
                         name: "FK_Supplies_Medicines_MedicineId",
                         column: x => x.MedicineId,
                         principalTable: "Medicines",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Supplies_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -384,7 +392,7 @@ namespace MedicalResearch.DAL.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "ClinicId", "Email", "FirstName", "Initials", "LastName", "Password", "PaswordSalt", "State" },
-                values: new object[] { 1, null, "byklin@list.ru", "Admin", "", "", "0m5ILJlS4vE+9gsxEmgX2/KGhmeCBGyekUjYTq1/CgY=", new byte[] { 93, 61, 5, 143, 108, 94, 214, 190, 104, 158, 126, 120, 116, 41, 15, 150, 148, 126, 236, 66, 236, 242, 31, 177, 156, 197, 29, 84, 196, 192, 202, 173 }, 0 });
+                values: new object[] { 1, null, "byklin@list.ru", "Admin", "", "", "faEedsYMP273c0FVeJ/7qX39a3Is1ai7y/1jfGnGUrk=", new byte[] { 140, 49, 183, 189, 83, 185, 204, 190, 188, 207, 123, 61, 112, 47, 245, 234, 162, 204, 37, 154, 28, 149, 139, 244, 238, 78, 57, 196, 168, 186, 223, 98 }, 0 });
 
             migrationBuilder.InsertData(
                 table: "UserRole",
@@ -473,6 +481,11 @@ namespace MedicalResearch.DAL.Migrations
                 column: "MedicineId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Supplies_UserId",
+                table: "Supplies",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserRole_RoleId",
                 table: "UserRole",
                 column: "RoleId");
@@ -534,13 +547,10 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Patients");
 
             migrationBuilder.DropTable(
-                name: "Users");
-
-            migrationBuilder.DropTable(
                 name: "Medicines");
 
             migrationBuilder.DropTable(
-                name: "Clinics");
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "DosageForms");
@@ -550,6 +560,9 @@ namespace MedicalResearch.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "MedicinesTypes");
+
+            migrationBuilder.DropTable(
+                name: "Clinics");
 
             migrationBuilder.DropSequence(
                 name: "ClinicSequence");

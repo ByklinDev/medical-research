@@ -15,6 +15,5 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<DosageForm> UpdateDosageFormAsync(DosageForm dosageForm);
         Task<DosageForm?> GetDosageFormAsync(int id);
         Task<List<DosageForm>> GetDosageFormsAsync(Query query);
-        Task<List<DosageForm>> GetDosageFormsByNameAsync(Query query);
     }
 }

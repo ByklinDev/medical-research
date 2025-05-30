@@ -15,6 +15,5 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<MedicineContainer> UpdateMedicineContainerAsync(MedicineContainer medicineContainer);
         Task<MedicineContainer?> GetMedicineContainerAsync(int id);
         Task<List<MedicineContainer>> GetMedicineContainersAsync(Query query);
-        Task<List<MedicineContainer>> GetMedicineContainersByNameAsync(Query query);
     }
 }

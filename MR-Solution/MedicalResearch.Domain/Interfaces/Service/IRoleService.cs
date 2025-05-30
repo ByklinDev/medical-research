@@ -15,6 +15,5 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<Role> UpdateRoleAsync(Role role);
         Task<Role?> GetRoleAsync(int id);
         Task<List<Role>> GetRolesAsync(Query query);
-        Task<List<Role>> GetRolesByNameAsync(Query query);
     }
 }
