@@ -37,7 +37,7 @@ public class ClinicStockMedicineController(IMapper mapper, IServiceProvider serv
     }
 
     // GET api/<ClinicStockMedicineController>/5
-    [HttpGet("Clinic/{clinicId}")]
+    [HttpGet("Clinics/{clinicId}")]
     public async Task<ActionResult<IEnumerable<ClinicStockMedicineDTO>>> GetClinicStockMedicinesByClinicIdAsync(int clinicId, [FromQuery] QueryDTO queryDTO)
     {
         var validator = serviceProvider
@@ -70,7 +70,7 @@ public class ClinicStockMedicineController(IMapper mapper, IServiceProvider serv
         return Ok(clinicStockMedicineDTO);
     }
 
-    [HttpGet("Clinic/{clinicId}/Medicine/{medicineId}")]
+    [HttpGet("Clinics/{clinicId}/Medicines/{medicineId}")]
     public async Task<ActionResult<ClinicStockMedicineDTO>> GetClinicStockMedicineAsync(int clinicId, int medicineId)
     {
         var clinicStockMedicine = await clinicStockMedicineService.GetClinicStockMedicineAsync(clinicId, medicineId);

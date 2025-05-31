@@ -67,7 +67,7 @@ public class UserController(IUserService userService, IServiceProvider servicePr
     }
 
 
-    [HttpPut("{userId}/Role/{roleId}")]
+    [HttpPut("{userId}/Roles/{roleId}")]
     public async Task<ActionResult> AddUserRole(int userId, int roleId)
     {
         var user = await userService.GetUserAsync(userId);
@@ -143,7 +143,7 @@ public class UserController(IUserService userService, IServiceProvider servicePr
         return Ok(isDeleted);
     }
 
-    [HttpDelete("{userId}/Role/{roleId}")]
+    [HttpDelete("{userId}/Roles/{roleId}")]
     public async Task<ActionResult> DeleteUserRole(int userId, int roleId)
     {
         var user = await userService.GetUserAsync(userId);

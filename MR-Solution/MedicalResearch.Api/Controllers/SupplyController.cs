@@ -42,7 +42,7 @@ public class SupplyController(IMapper mapper,
         return Ok(supplyDTOs);
     }
 
-    [HttpGet("Clinic/{clinicId}")]
+    [HttpGet("Clinics/{clinicId}")]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByClinicAsync(int clinicId, [FromQuery] QueryDTO queryDTO)
     {
         if (clinicId <= 0)
@@ -66,7 +66,7 @@ public class SupplyController(IMapper mapper,
         return Ok(supplyDTOs);
     }
 
-    [HttpGet("Medicine/{medicineId}")]
+    [HttpGet("Medicines/{medicineId}")]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByMedicineAsync(int medicineId, [FromQuery] QueryDTO queryDTO)
     {
         if (medicineId <= 0)
@@ -90,7 +90,7 @@ public class SupplyController(IMapper mapper,
         return Ok(supplyDTOs);
     }
 
-    [HttpGet("Clinic/{clinicId}/Medicine/{medicineId}")]
+    [HttpGet("Clinics/{clinicId}/Medicines/{medicineId}")]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByMedicineAsync(int clinicId, int medicineId, [FromQuery] QueryDTO queryDTO)
     {
         if (clinicId <= 0 || medicineId <= 0)
@@ -114,7 +114,7 @@ public class SupplyController(IMapper mapper,
         return Ok(supplyDTOs);
     }
 
-    [HttpGet("User/{userId}")]
+    [HttpGet("Users/{userId}")]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetInactiveSuppliesByUserIdAsync(int userId, [FromQuery] QueryDTO queryDTO)
     {
         if (userId <= 0)
