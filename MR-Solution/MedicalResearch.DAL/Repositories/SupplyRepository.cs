@@ -10,31 +10,12 @@ namespace MedicalResearch.DAL.Repositories;
 internal class SupplyRepository(MedicalResearchDbContext _context) : BaseRepository<Supply>(_context), ISupplyRepository
 {
 
-    public async Task<List<Supply>> GetInactiveSuppliesByUserIdAsync(int userId, Query query)
+    public async Task<PagedList<Supply>> GetInactiveSuppliesByUserIdAsync(int userId, Query query)
     {
-        var result = _dbSet.Where(x => x.UserId == userId && x.IsActive == false)
-                           .Skip(query.Skip)
-                           .Take(query.Take);
-        if (string.IsNullOrEmpty(query.SortColumn))
-        {
-            query.SortColumn = "Id";
-        }
-        var prop = typeof(Supply).GetProperty(query.SortColumn)?.Name ?? typeof(Supply).GetProperties().FirstOrDefault()?.Name;
-        if (prop != null)
-        {
-            if (query.IsAscending)
-            {
-                result = result.OrderBy(t => prop);
-            }
-            else
-            {
-                result = result.OrderByDescending(t => prop);
-            }
-        }
-        return await result.AsNoTracking().ToListAsync();
+        return await _dbSet.Where(x => x.UserId == userId && x.IsActive == false).SortSkipTakeAsync(query);
     }
 
-    public async Task<List<Supply>> SearchByTermAsync(int? clinicId, int? medicineId, Query query)
+    public async Task<PagedList<Supply>> SearchByTermAsync(int? clinicId, int? medicineId, Query query)
     {
         var result = _dbSet.SearchByTerm(query.SearchTerm);
         if (clinicId != null && clinicId.HasValue && clinicId > 0)
@@ -45,24 +26,6 @@ internal class SupplyRepository(MedicalResearchDbContext _context) : BaseReposit
         {
             result = result.Where(x => x.MedicineId == medicineId);
         }
-        result = result.Skip(query.Skip)
-                       .Take(query.Take);
-        if (string.IsNullOrEmpty(query.SortColumn))
-        {
-            query.SortColumn = "Id";
-        }
-        var prop = typeof(Supply).GetProperty(query.SortColumn)?.Name ?? typeof(Supply).GetProperties().FirstOrDefault()?.Name;
-        if (prop != null)
-        {
-            if (query.IsAscending)
-            {
-                result = result.OrderBy(t => prop);
-            }
-            else
-            {
-                result = result.OrderByDescending(t => prop);
-            }
-        }
-        return await result.AsNoTracking().ToListAsync();
+        return await result.SortSkipTakeAsync(query);
     }
 }

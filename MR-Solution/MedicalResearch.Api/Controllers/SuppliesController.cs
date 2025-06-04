@@ -2,19 +2,21 @@
 using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
+using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 
 namespace MedicalResearch.Api.Controllers;
 
-[Route("api/Supplies")]
+[Route("api/[controller]")]
 [ApiController]
-public class SupplyController(IMapper mapper,
+public class SuppliesController(IMapper mapper,
                               ISupplyService supplyService,
-                              IServiceProvider serviceProvider,
                               IValidator<Medicine> medicineValidator,
                               IValidator<Supply> supplyValidator,
                               IUserService userService,
@@ -23,114 +25,73 @@ public class SupplyController(IMapper mapper,
 {
     // GET: api/<SupplyController>
     [HttpGet]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesAsync([FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
-        if (validator == null)
-        {
-            return BadRequest("No suitable validator found for QueryDTO<Supply>");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
         var supplies = await supplyService.GetSuppliesAsync(null, null, query);
         var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
-        return Ok(supplyDTOs);
+        var pagedDTO = new PagedList<SupplyDTO>(supplyDTOs, supplies.TotalCount, supplies.CurrentPage, supplies.PageSize);
+        return Ok(pagedDTO);
     }
 
     [HttpGet("Clinics/{clinicId}")]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByClinicAsync(int clinicId, [FromQuery] QueryDTO queryDTO)
     {
         if (clinicId <= 0)
         {
             return BadRequest("Invalid clinic ID.");
         }
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
-        if (validator == null)
-        {
-            return BadRequest("No suitable validator found for QueryDTO<Supply>");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
         var supplies = await supplyService.GetSuppliesAsync(clinicId, null, query);
         var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
-        return Ok(supplyDTOs);
+        var pagedDTO = new PagedList<SupplyDTO>(supplyDTOs, supplies.TotalCount, supplies.CurrentPage, supplies.PageSize);
+        return Ok(pagedDTO);
     }
 
     [HttpGet("Medicines/{medicineId}")]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByMedicineAsync(int medicineId, [FromQuery] QueryDTO queryDTO)
     {
         if (medicineId <= 0)
         {
             return BadRequest("Invalid medicine ID.");
         }
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
-        if (validator == null)
-        {
-            return BadRequest("No suitable validator found for QueryDTO<Supply>");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
         var supplies = await supplyService.GetSuppliesAsync(null, medicineId, query);
         var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
-        return Ok(supplyDTOs);
+        var pagedDTO = new PagedList<SupplyDTO>(supplyDTOs, supplies.TotalCount, supplies.CurrentPage, supplies.PageSize);
+        return Ok(pagedDTO);
     }
 
     [HttpGet("Clinics/{clinicId}/Medicines/{medicineId}")]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByMedicineAsync(int clinicId, int medicineId, [FromQuery] QueryDTO queryDTO)
     {
         if (clinicId <= 0 || medicineId <= 0)
         {
             return BadRequest("Invalid clinic or medicine ID.");
         }
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
-        if (validator == null)
-        {
-            return BadRequest("No suitable validator found for QueryDTO<Supply>");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
         var supplies = await supplyService.GetSuppliesAsync(clinicId, medicineId, query);
         var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
-        return Ok(supplyDTOs);
+        var pagedDTO = new PagedList<SupplyDTO>(supplyDTOs, supplies.TotalCount, supplies.CurrentPage, supplies.PageSize);
+        return Ok(pagedDTO);
     }
 
     [HttpGet("Users/{userId}")]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetInactiveSuppliesByUserIdAsync(int userId, [FromQuery] QueryDTO queryDTO)
     {
         if (userId <= 0)
         {
             return BadRequest("Invalid user ID.");
-        }
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Supply>));
-        if (validator == null)
-        {
-            return BadRequest("No suitable validator found for QueryDTO<Supply>");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
         }
         var query = mapper.Map<Query>(queryDTO);
         var user = await userService.GetUserAsync(userId);
@@ -140,7 +101,8 @@ public class SupplyController(IMapper mapper,
         }
         var supplies = await supplyService.GetInactiveSuppliesByUserIdAsync(userId, query);
         var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
-        return Ok(supplyDTOs);
+        var pagedDTO = new PagedList<SupplyDTO>(supplyDTOs, supplies.TotalCount, supplies.CurrentPage, supplies.PageSize);
+        return Ok(pagedDTO);
     }
 
 

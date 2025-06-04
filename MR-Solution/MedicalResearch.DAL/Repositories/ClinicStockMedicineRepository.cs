@@ -25,7 +25,7 @@ internal class ClinicStockMedicineRepository(MedicalResearchDbContext _context) 
             .FirstOrDefaultAsync(x => (x.ClinicId == clinicId) && (x.MedicineId == medicineId));
     }
 
-    public async Task<List<ClinicStockMedicine>> SearchByTermAsync(int? clinicId, Query query)
+    public async Task<PagedList<ClinicStockMedicine>> SearchByTermAsync(int? clinicId, Query query)
     {
         IQueryable<ClinicStockMedicine> result;
         if (clinicId != null && clinicId.HasValue && clinicId > 0)
@@ -36,25 +36,6 @@ internal class ClinicStockMedicineRepository(MedicalResearchDbContext _context) 
         {
             result = _dbSet.SearchByTerm(query.SearchTerm);
         }
-
-        result = result.Skip(query.Skip)
-                       .Take(query.Take);
-        if (string.IsNullOrEmpty(query.SortColumn))
-        {
-            query.SortColumn = "Id";
-        }
-        var prop = typeof(ClinicStockMedicine).GetProperty(query.SortColumn)?.Name ?? typeof(ClinicStockMedicine).GetProperties().FirstOrDefault()?.Name;
-        if (prop != null) 
-        {
-            if (query.IsAscending)
-            {
-                result = result.OrderBy(t => prop);                                
-            }
-            else
-            {
-                result = result.OrderByDescending(t => prop);                              
-            }
-        }
-        return await result.AsNoTracking().ToListAsync();
+        return await result.SortSkipTakeAsync(query);
     }
 }

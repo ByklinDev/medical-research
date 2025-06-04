@@ -2,6 +2,8 @@
 using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
+using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
@@ -11,28 +13,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MedicalResearch.Api.Controllers;
 
-[Route("api/[controller]s")]
+[Route("api/[controller]")]
 [ApiController]
-public class RoleController(IMapper mapper, IServiceProvider serviceProvider, IRoleService roleService) : ControllerBase
+public class RolesController(IMapper mapper, IRoleService roleService) : ControllerBase
 {
     // GET: api/<RoleController>
     [HttpGet]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<Role>))]
+    [PageListFilter<RoleDTO>]
     public async Task<ActionResult<List<RoleDTO>>> GetRoles([FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Role>));
-        if (validator == null)
-        {
-            return BadRequest("No suitable validator found for QueryDTO<Role>");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
         var roles = await roleService.GetRolesAsync(query);
-        return mapper.Map<List<RoleDTO>>(roles);        
+        var rolesDTOs = mapper.Map<List<RoleDTO>>(roles);
+        var pagedDTO = new PagedList<RoleDTO>(rolesDTOs, roles.TotalCount, roles.CurrentPage, roles.PageSize);
+        return Ok(pagedDTO);        
     }
     
 

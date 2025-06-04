@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     public interface IRoleRepository: IBaseRepository<Role>
     {
         Task<Role?> GetRoleByNameAsync(string name);
-        Task<List<Role>> SearchByTermAsync(Query query);
+        Task<PagedList<Role>> SearchByTermAsync(Query query);
     }
 }

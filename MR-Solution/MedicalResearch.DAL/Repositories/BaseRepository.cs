@@ -4,6 +4,7 @@ using MedicalResearch.Domain.Interfaces.Repository;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using Microsoft.EntityFrameworkCore;
+using MedicalResearch.Domain.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,5 +74,6 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : Entity
     public virtual async Task<T?> GetByIdAsync(int id)
     {
         return await _dbSet.FindAsync(id);
-    }   
+    }
+
 }

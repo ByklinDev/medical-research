@@ -3,6 +3,7 @@ using FluentValidation;
 using MedicalResearch.Api;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
+using MedicalResearch.Api.Filters;
 using MedicalResearch.Api.Middleware;
 using MedicalResearch.DAL.DataContext;
 using MedicalResearch.DAL.UnitOfWork;
@@ -10,6 +11,7 @@ using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Services;
 using MedicalResearch.Domain.Validations;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,7 +55,21 @@ builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Visit>>();
 builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Patient>>();
 builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<ClinicStockMedicine>>();
 
+builder.Services.AddScoped<CheckDTOFilterAttribute<MedicineContainer>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<Medicine>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<MedicineType>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<User>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<Role>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<Supply>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<Visit>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<ClinicStockMedicine>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<DosageForm>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<Clinic>>();
+builder.Services.AddScoped<CheckDTOFilterAttribute<Patient>>();
+
+
 builder.Services.AddScoped<IClinicService, ClinicService>();
+builder.Services.AddScoped<IClinicStockMedicineService, ClinicStockMedicineService>();
 builder.Services.AddScoped<IDosageFormService, DosageFormService>();
 builder.Services.AddScoped<IMedicineContainerService, MedicineContainerService>();
 builder.Services.AddScoped<IMedicineService, MedicineService>();

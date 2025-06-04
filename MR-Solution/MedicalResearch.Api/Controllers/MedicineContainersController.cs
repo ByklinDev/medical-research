@@ -2,37 +2,34 @@
 using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
+using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace MedicalResearch.Api.Controllers;
 
-[Route("api/[controller]s")]
+[Route("api/[controller]")]
 [ApiController]
-public class MedicineContainerController(IMapper mapper, IServiceProvider serviceProvider, IMedicineContainerService medicineContainerService) : ControllerBase
+public class MedicineContainersController(IMapper mapper, IMedicineContainerService medicineContainerService) : ControllerBase
 {
     // GET: api/<MedicineContainerController>
     [HttpGet]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<MedicineContainer>))]
+    [PageListFilter<MedicineContainerDTO>]
     public async Task <ActionResult<IEnumerable<MedicineContainerDTO>>> GetMedicineContainers([FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<MedicineContainer>)); ;
-        if (validator == null) 
-        {
-            return BadRequest("Validator for QueryDTO<MedicineContainer> not found.");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
-        var medicineContainers = await medicineContainerService.GetMedicineContainersAsync(query);
+        var medicineContainers = await medicineContainerService.GetMedicineContainersAsync(query);       
         var medicineContainerDTOs = mapper.Map<List<MedicineContainerDTO>>(medicineContainers);
-        return Ok(medicineContainerDTOs);
+        var pagedDTO = new PagedList<MedicineContainerDTO>(medicineContainerDTOs, medicineContainers.TotalCount, medicineContainers.CurrentPage, medicineContainers.PageSize );
+        return Ok(pagedDTO);
     }
 
     // GET api/<MedicineContainerController>/5

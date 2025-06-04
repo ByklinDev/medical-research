@@ -1,4 +1,5 @@
 ﻿using MedicalResearch.Domain.Enums;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using System;
@@ -15,7 +16,7 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<bool> DeleteUserAsync(int id);
         Task<User> UpdateUserAsync(User user);
         Task<User?> GetUserAsync(int id);
-        Task<List<User>> GetUsersAsync(Query query);
+        Task<PagedList<User>> GetUsersAsync(Query query);
         Task<User?> GetUserByEmailAsync(string email);
         Task<bool> AddUserRole(User user, Role role);
         Task<bool> DeleteUserRole(User user, Role role);

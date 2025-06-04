@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     public interface IMedicineTypeRepository: IBaseRepository<MedicineType>
     {
         Task<MedicineType?> GetMedicineTypeByNameAsync(string name);
-        Task<List<MedicineType>> SearchByTermAsync(Query query);
+        Task<PagedList<MedicineType>> SearchByTermAsync(Query query);
     }
 }

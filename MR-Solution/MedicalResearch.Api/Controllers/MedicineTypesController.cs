@@ -2,6 +2,8 @@
 using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
+using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
@@ -11,29 +13,21 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace MedicalResearch.Api.Controllers;
 
-[Route("api/[controller]s")]
+[Route("api/[controller]")]
 [ApiController]
-public class MedicineTypeController(IMapper mapper, IServiceProvider serviceProvider, IMedicineTypeService medicineTypeService) : ControllerBase
+public class MedicineTypesController(IMapper mapper, IMedicineTypeService medicineTypeService) : ControllerBase
 {
     // GET: api/<MedicineTypeController>
     [HttpGet]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<MedicineType>))]
+    [PageListFilter<MedicineTypeDTO>]
     public async Task<ActionResult<IEnumerable<MedicineTypeDTO>>> GetMedicineTypes([FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<MedicineType>));
-        if (validator == null) 
-        {
-            return BadRequest("No suitable validator found for QueryDTO<MedicineType>");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
         var medicineTypes = await medicineTypeService.GetMedicineTypesAsync(query);
         var medicineTypeDTOs = mapper.Map<List<MedicineTypeDTO>>(medicineTypes);
-        return Ok(medicineTypeDTOs);
+        var pagedDTO = new PagedList<MedicineTypeDTO>(medicineTypeDTOs, medicineTypes.TotalCount, medicineTypes.CurrentPage, medicineTypes.PageSize);
+        return Ok(pagedDTO);
     }
 
     // GET api/<MedicineTypeController>/5

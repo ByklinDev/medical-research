@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 namespace MedicalResearch.Domain.Interfaces.Service;
 
@@ -9,6 +10,6 @@ public interface ISupplyService
     Task<bool> DeleteSupplyAsync(int id);
     Task<Supply> UpdateSupplyAsync(Supply supply);
     Task<Supply?> GetSupplyAsync(int id);
-    Task<List<Supply>> GetSuppliesAsync(int? clinicId, int? medicineId, Query query);
-    Task<List<Supply>> GetInactiveSuppliesByUserIdAsync(int userId, Query query);
+    Task<PagedList<Supply>> GetSuppliesAsync(int? clinicId, int? medicineId, Query query);
+    Task<PagedList<Supply>> GetInactiveSuppliesByUserIdAsync(int userId, Query query);
 }

@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,6 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<bool> DeleteRoleAsync(int id);
         Task<Role> UpdateRoleAsync(Role role);
         Task<Role?> GetRoleAsync(int id);
-        Task<List<Role>> GetRolesAsync(Query query);
+        Task<PagedList<Role>> GetRolesAsync(Query query);
     }
 }

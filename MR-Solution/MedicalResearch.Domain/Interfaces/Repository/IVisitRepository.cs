@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     {
         int GetNumberOfNextVisit(int patientId);
         Task<List<Visit>> GetVisitsOfPatient(int patientId);
-        Task<List<Visit>> SearchByTermAsync(Query query);
+        Task<PagedList<Visit>> SearchByTermAsync(Query query);
     }
 }

@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     public interface IUserRepository: IBaseRepository<User>
     {
         Task<User?> GetUserByEmailAsync(string email);
-        Task<List<User>> SearchByTermAsync(Query query);
+        Task<PagedList<User>> SearchByTermAsync(Query query);
     }
 }

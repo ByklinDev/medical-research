@@ -1,5 +1,6 @@
 ﻿using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Exceptions;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
@@ -36,7 +37,7 @@ public class ClinicStockMedicineService(IUnitOfWork unitOfWork, ILogger<ClinicSt
         }
     }
 
-    public async Task<List<ClinicStockMedicine>> GetClinicStockMedicinesByClinicIdAsync(int clinicId, Query query)
+    public async Task<PagedList<ClinicStockMedicine>> GetClinicStockMedicinesByClinicIdAsync(int clinicId, Query query)
     {
         try
         {
@@ -49,7 +50,7 @@ public class ClinicStockMedicineService(IUnitOfWork unitOfWork, ILogger<ClinicSt
         }
     }
 
-    public async Task<List<ClinicStockMedicine>> GetClinicStockMedicinesAsync(Query query)
+    public async Task<PagedList<ClinicStockMedicine>> GetClinicStockMedicinesAsync(Query query)
     {
         try
         {

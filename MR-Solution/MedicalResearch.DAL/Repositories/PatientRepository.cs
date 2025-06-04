@@ -14,27 +14,8 @@ internal class PatientRepository(MedicalResearchDbContext _context) : BaseReposi
         return await _dbSet.FirstOrDefaultAsync(x => x.Number == number);
     }
 
-    public async Task<List<Patient>> SearchByTermAsync(Query query)
+    public async Task<PagedList<Patient>> SearchByTermAsync(Query query)
     {
-        var result = _dbSet.SearchByTerm(query.SearchTerm)
-                           .Skip(query.Skip)
-                           .Take(query.Take);
-        if (string.IsNullOrEmpty(query.SortColumn))
-        {
-            query.SortColumn = "Id";
-        }
-        var prop = typeof(Patient).GetProperty(query.SortColumn)?.Name ?? typeof(Patient).GetProperties().FirstOrDefault()?.Name;
-        if (prop != null)
-        {
-            if (query.IsAscending)
-            {
-                result = result.OrderBy(t => prop);
-            }
-            else
-            {
-                result = result.OrderByDescending(t => prop);
-            }
-        }
-        return await result.AsNoTracking().ToListAsync(); 
+        return await _dbSet.SearchByTerm(query.SearchTerm).SortSkipTakeAsync(query);                       
     }
 }

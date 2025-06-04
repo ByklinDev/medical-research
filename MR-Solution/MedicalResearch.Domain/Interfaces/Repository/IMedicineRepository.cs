@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     {
         Task<Medicine?> GetMedicineByDescriptionAsync(string description);
         Task<Medicine?> GetMedicineAsync(Medicine medicine);
-        Task<List<Medicine>> SearchByTermAsync(Query query);
+        Task<PagedList<Medicine>> SearchByTermAsync(Query query);
     }
 }

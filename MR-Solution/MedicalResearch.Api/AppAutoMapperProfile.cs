@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MedicalResearch.Api.DTO;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 

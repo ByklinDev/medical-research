@@ -2,6 +2,8 @@
 using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
+using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
@@ -12,50 +14,32 @@ namespace MedicalResearch.Api.Controllers;
 
 [Route("api/[controller]s")]
 [ApiController]
-public class ClinicStockMedicineController(IMapper mapper, IServiceProvider serviceProvider, IClinicStockMedicineService clinicStockMedicineService) : ControllerBase
+public class ClinicStockMedicinesController(IMapper mapper, IClinicStockMedicineService clinicStockMedicineService) : ControllerBase
 {
     // GET: api/<ClinicStockMedicineController>
     [HttpGet]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<ClinicStockMedicine>))]
+    [PageListFilter<ClinicStockMedicineDTO>]
     public async Task<ActionResult<IEnumerable<ClinicStockMedicineDTO>>> GetClinicStockMedicines([FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider
-                        .GetServices<IValidator<QueryDTO>>()
-                        .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<ClinicStockMedicine>));
-        if (validator == null)
-        {
-            return BadRequest("Validator for QueryDTO<ClinicStockMedicine> not found.");
-        }
-        var resultValidation = await validator.ValidateAsync(queryDTO);
-        if (!resultValidation.IsValid)
-        {
-            return BadRequest(resultValidation.Errors.Select(e => e.ErrorMessage));
-        }
         var query = mapper.Map<Query>(queryDTO);
         var clinicStockMedicines = await clinicStockMedicineService.GetClinicStockMedicinesAsync(query);
         var clinicStockMedicineDTOs = mapper.Map<List<ClinicStockMedicineDTO>>(clinicStockMedicines);
-        return Ok(clinicStockMedicineDTOs);
+        var pagedDTO = new PagedList<ClinicStockMedicineDTO>(clinicStockMedicineDTOs, clinicStockMedicines.TotalCount, clinicStockMedicines.CurrentPage, clinicStockMedicines.PageSize);
+        return Ok(pagedDTO);
     }
 
     // GET api/<ClinicStockMedicineController>/5
     [HttpGet("Clinics/{clinicId}")]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<ClinicStockMedicine>))]
+    [PageListFilter<ClinicStockMedicineDTO>]
     public async Task<ActionResult<IEnumerable<ClinicStockMedicineDTO>>> GetClinicStockMedicinesByClinicIdAsync(int clinicId, [FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider
-                        .GetServices<IValidator<QueryDTO>>()
-                        .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<ClinicStockMedicine>));
-        if (validator == null)
-        {
-            return BadRequest("Validator for QueryDTO<ClinicStockMedicine> not found.");
-        }
-        var resultValidation = await validator.ValidateAsync(queryDTO);
-        if (!resultValidation.IsValid)
-        {
-            return BadRequest(resultValidation.Errors.Select(e => e.ErrorMessage));
-        }
         var query = mapper.Map<Query>(queryDTO);
         var clinicStockMedicines = await clinicStockMedicineService.GetClinicStockMedicinesByClinicIdAsync(clinicId, query);
         var clinicStockMedicineDTOs = mapper.Map<List<ClinicStockMedicineDTO>>(clinicStockMedicines);
-        return Ok(clinicStockMedicineDTOs);
+        var pagedDTO = new PagedList<ClinicStockMedicineDTO>(clinicStockMedicineDTOs, clinicStockMedicines.TotalCount, clinicStockMedicines.CurrentPage, clinicStockMedicines.PageSize);
+        return Ok(pagedDTO);
     }
 
     [HttpGet("{id}")]

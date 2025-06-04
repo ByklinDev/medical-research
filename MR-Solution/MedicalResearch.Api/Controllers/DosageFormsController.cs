@@ -6,34 +6,27 @@ using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using FluentValidation;
 using MedicalResearch.Api.DTOValidators;
+using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Extensions;
 
 
 namespace MedicalResearch.Api.Controllers;
 
-[Route("api/[controller]s")]
+[Route("api/[controller]")]
 [ApiController]
-public class DosageFormController(IMapper mapper, IServiceProvider serviceProvider, IDosageFormService dosageFormService) : ControllerBase
+public class DosageFormsController(IMapper mapper, IDosageFormService dosageFormService) : ControllerBase
 {
     // GET: api/<DosageFormController>
     [HttpGet]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<DosageForm>))]
+    [PageListFilter<DosageFormDTO>]
     public async Task<ActionResult<IEnumerable<DosageFormDTO>>> GetDosageForms([FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider
-                        .GetServices<IValidator<QueryDTO>>()
-                        .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<DosageForm>));
-        if (validator == null)
-        {
-            return BadRequest("Validator for QueryDTO<DosageForm> not found.");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
         var dosageForms = await dosageFormService.GetDosageFormsAsync(query);
         var dosageFormDTOs = mapper.Map<List<DosageFormDTO>>(dosageForms);
-        return Ok(dosageFormDTOs);
+        var pagedDTO = new PagedList<DosageFormDTO>(dosageFormDTOs, dosageForms.TotalCount, dosageForms.CurrentPage, dosageForms.PageSize);
+        return Ok(pagedDTO);
     }
 
     // GET api/<DosageFormController>/5

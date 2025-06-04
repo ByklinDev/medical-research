@@ -2,6 +2,8 @@
 using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
+using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
@@ -10,29 +12,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MedicalResearch.Api.Controllers;
 
-[Route("api/[controller]s")]
+[Route("api/[controller]")]
 [ApiController]
-public class MedicineController(IMapper mapper, IServiceProvider serviceProvider, IMedicineService medicineService) : ControllerBase
+public class MedicinesController(IMapper mapper, IMedicineService medicineService) : ControllerBase
 {
     // GET: api/<MedicineController>
     [HttpGet]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<Medicine>))]
+    [PageListFilter<MedicineDTO>]
     public async Task<ActionResult<IEnumerable<MedicineDTO>>> GetMedicines([FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                                       .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Medicine>));
-        if (validator == null) 
-        {
-            return BadRequest("No suitable validator found for QueryDTO<Medicine>.");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
         var medicines = await medicineService.GetMedicinesAsync(query);
         var medicineDTOs = mapper.Map<List<MedicineDTO>>(medicines);
-        return Ok(medicineDTOs);
+        var pagedDTO = new PagedList<MedicineDTO>(medicineDTOs, medicines.TotalCount, medicines.CurrentPage, medicines.PageSize);
+        return Ok(pagedDTO);
     }
 
     // GET api/<MedicineController>/5

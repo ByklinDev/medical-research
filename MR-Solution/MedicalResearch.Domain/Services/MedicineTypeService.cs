@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Exceptions;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
@@ -12,45 +13,40 @@ public class MedicineTypeService(IUnitOfWork unitOfWork, IValidator<MedicineType
 {
     public async Task<MedicineType> AddMedicineTypeAsync(MedicineType medicineType)
     {
+        MedicineType? added;
+        int countAdded;
+
+        var validationResult = await medicineTypeValidator.ValidateAsync(medicineType);
+        if (!validationResult.IsValid)
+        {
+            throw new DomainException(validationResult.Errors.First().ErrorMessage);
+        }
+        var existedMedicineType = await unitOfWork.MedicineTypeRepository.GetMedicineTypeByNameAsync(medicineType.Name);
+        if (existedMedicineType != null)
+        {
+            throw new DomainException("Medicine type already exists.");
+        }
+
         try
         {
-            var validationResult = await medicineTypeValidator.ValidateAsync(medicineType);
-            if (!validationResult.IsValid)
-            {
-                throw new DomainException(validationResult.Errors.First().ErrorMessage);
-            }
-            var existedMedicineType = await unitOfWork.MedicineTypeRepository.GetMedicineTypeByNameAsync(medicineType.Name);
-            if (existedMedicineType != null)
-            {
-                throw new DomainException("Medicine type already exists.");
-            }
-            var added = await unitOfWork.MedicineTypeRepository.AddAsync(medicineType);
-            return await unitOfWork.SaveAsync() > 0 ? added : throw new DomainException("Medicine type not added.");
-        }
-        catch (DomainException ex)
-        {
-            logger.LogError(ex, "Medicine type {medicineType} could not be added: {message}", medicineType.Name, ex.Message);
-            throw;
+            added = await unitOfWork.MedicineTypeRepository.AddAsync(medicineType);
+            countAdded = await unitOfWork.SaveAsync();
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Medicine type {medicineType} could not be added: {message}", medicineType.Name, ex.Message);
             throw new DomainException($"Error while adding Medicine type {medicineType.Name}");
         }
+        return countAdded > 0 && added != null ? added : throw new DomainException("Medicine type not added.");
     }
 
     public async Task<bool> DeleteMedicineTypeAsync(int id)
     {
+        var existedMedicineType = await unitOfWork.MedicineTypeRepository.GetByIdAsync(id) ?? throw new DomainException("Medicine type no found.");
         try
         {
-            var existedMedicineType = await unitOfWork.MedicineTypeRepository.GetByIdAsync(id) ?? throw new DomainException("Medicine type no found.");
             var isDelete = unitOfWork.MedicineTypeRepository.Delete(existedMedicineType);
-            return await unitOfWork.SaveAsync() > 0 ? isDelete : throw new DomainException("Medicine type not deleted.");
-        }
-        catch (DomainException ex)
-        {
-            logger.LogError(ex, "Medicine type with id {id} could not be deleted: {message}", id, ex.Message);
-            throw;
+            return await unitOfWork.SaveAsync() > 0 && isDelete;        
         }
         catch (Exception ex)
         {
@@ -72,7 +68,7 @@ public class MedicineTypeService(IUnitOfWork unitOfWork, IValidator<MedicineType
         }
     }
 
-    public async Task<List<MedicineType>> GetMedicineTypesAsync(Query query)
+    public async Task<PagedList<MedicineType>> GetMedicineTypesAsync(Query query)
     {
         try
         {
@@ -87,32 +83,31 @@ public class MedicineTypeService(IUnitOfWork unitOfWork, IValidator<MedicineType
 
     public async Task<MedicineType> UpdateMedicineTypeAsync(MedicineType medicineType)
     {
-        try 
+        MedicineType? updated;
+        int countUpdated;
+
+        var existedMedicineType = await unitOfWork.MedicineTypeRepository.GetByIdAsync(medicineType.Id) ?? throw new DomainException("Medicine type no found.");
+        var validationResult = await medicineTypeValidator.ValidateAsync(medicineType);
+        if (!validationResult.IsValid)
         {
-            var existedMedicineType = await unitOfWork.MedicineTypeRepository.GetByIdAsync(medicineType.Id) ?? throw new DomainException("Medicine type no found.");
-            var validationResult = await medicineTypeValidator.ValidateAsync(medicineType);
-            if (!validationResult.IsValid)
-            {
-                throw new DomainException(validationResult.Errors.First().ErrorMessage);
-            }
-            var existedMedicineTypeWithSameName = await unitOfWork.MedicineTypeRepository.GetMedicineTypeByNameAsync(medicineType.Name);
-            if (existedMedicineTypeWithSameName != null && existedMedicineTypeWithSameName.Id != medicineType.Id)
-            {
-                throw new DomainException("Medicine type with this name already exists.");
-            }
-            existedMedicineType.Name = medicineType.Name;
-            var updated = unitOfWork.MedicineTypeRepository.Update(existedMedicineType);
-            return await unitOfWork.SaveAsync() > 0 ? updated : throw new DomainException("Medicine type not updated.");
+            throw new DomainException(validationResult.Errors.First().ErrorMessage);
         }
-        catch (DomainException ex)
+        var existedMedicineTypeWithSameName = await unitOfWork.MedicineTypeRepository.GetMedicineTypeByNameAsync(medicineType.Name);
+        if (existedMedicineTypeWithSameName != null && existedMedicineTypeWithSameName.Id != medicineType.Id)
         {
-            logger.LogError(ex, "Medicine type {medicineType} could not be updated: {message}", medicineType.Name, ex.Message);
-            throw;
+            throw new DomainException("Medicine type with this name already exists.");
+        }
+        try
+        {
+            existedMedicineType.Name = medicineType.Name;
+            updated = unitOfWork.MedicineTypeRepository.Update(existedMedicineType);
+            countUpdated = await unitOfWork.SaveAsync();
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Medicine type {medicineType} could not be updated: {message}", medicineType.Name, ex.Message);
             throw new DomainException($"Error while updating Medicine type {medicineType.Name}");
         }
+        return countUpdated > 0 && updated != null ? updated : throw new DomainException("Medicine type not updated.");
     }
 }

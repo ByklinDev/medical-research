@@ -6,34 +6,27 @@ using MedicalResearch.Api.DTOValidators;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
+using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Extensions;
 
 
 namespace MedicalResearch.Api.Controllers;
 
-[Route("api/[controller]s")]
+[Route("api/[controller]")]
 [ApiController]
-public class ClinicController(IMapper mapper, IServiceProvider serviceProvider, IClinicService clinicService) : ControllerBase
+public class ClinicsController(IMapper mapper, IClinicService clinicService) : ControllerBase
 {
     // GET: api/<ClinicController>
     [HttpGet]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<Clinic>))]
+    [PageListFilter<ClinicDTO>]
     public async Task<ActionResult<List<ClinicDTO>>> GetClinics([FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider
-                        .GetServices<IValidator<QueryDTO>>()
-                        .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<Clinic>));
-        if (validator == null)
-        {
-            return BadRequest("Validator for QueryDTO<Clinic> not found.");
-        }
-        var resultValidation = await validator.ValidateAsync(queryDTO);
-        if (!resultValidation.IsValid)
-        {
-            return BadRequest(resultValidation.Errors.Select(e => e.ErrorMessage));
-        }
         var query = mapper.Map<Query>(queryDTO);
         var clinics = await clinicService.GetClinicsAsync(query);
         var clinicDTOs = mapper.Map<List<ClinicDTO>>(clinics);
-        return Ok(clinicDTOs);
+        var pagedDTO = new PagedList<ClinicDTO>(clinicDTOs, clinics.TotalCount, clinics.CurrentPage, clinics.PageSize);
+        return Ok(pagedDTO);
     }
     
     // GET api/<ClinicController>/5

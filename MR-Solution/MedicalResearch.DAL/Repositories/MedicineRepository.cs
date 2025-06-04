@@ -28,27 +28,8 @@ internal class MedicineRepository(MedicalResearchDbContext _context) : BaseRepos
         && x.ExpireAt == medicine.ExpireAt);
     }
 
-    public async Task<List<Medicine>> SearchByTermAsync(Query query)
+    public async Task<PagedList<Medicine>> SearchByTermAsync(Query query)
     {
-        var result = _dbSet.SearchByTerm(query.SearchTerm)
-                           .Skip(query.Skip)
-                           .Take(query.Take);
-        if (string.IsNullOrEmpty(query.SortColumn))
-        {
-            query.SortColumn = "Id";
-        }
-        var prop = typeof(Medicine).GetProperty(query.SortColumn)?.Name ?? typeof(Medicine).GetProperties().FirstOrDefault()?.Name;
-        if (prop != null)
-        {
-            if (query.IsAscending)
-            {
-                result = result.OrderBy(t => prop);
-            }
-            else
-            {
-                result = result.OrderByDescending(t => prop);
-            }
-        }
-        return await result.AsNoTracking().ToListAsync();
+        return await _dbSet.SearchByTerm(query.SearchTerm).SortSkipTakeAsync(query);
     }
 }

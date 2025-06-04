@@ -2,7 +2,9 @@
 using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
+using MedicalResearch.Api.Filters;
 using MedicalResearch.Domain.Enums;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
@@ -10,28 +12,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MedicalResearch.Api.Controllers;
 
-[Route("api/[controller]s")]
+[Route("api/[controller]")]
 [ApiController]
-public class UserController(IUserService userService, IServiceProvider serviceProvider, IRoleService roleService, IMapper mapper, IValidator<UserCreateDTO> userValidator) : ControllerBase
+public class UsersController(IUserService userService, IRoleService roleService, IMapper mapper, IValidator<UserCreateDTO> userValidator) : ControllerBase
 {
     // GET: api/<UserController>
     [HttpGet]
+    [ServiceFilter(typeof(CheckDTOFilterAttribute<User>))]
+    [PageListFilter<UserDTO>]
     public async Task<ActionResult<List<UserDTO>>> GetUsers([FromQuery] QueryDTO queryDTO)
     {
-        var validator = serviceProvider.GetServices<IValidator<QueryDTO>>()
-                        .FirstOrDefault(o => o.GetType() == typeof(QueryDTOValidator<User>));
-        if (validator == null)
-        {
-            return BadRequest("No suitable validator found for QueryDTO<User>");
-        }
-        var validationResult = await validator.ValidateAsync(queryDTO);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors.First().ErrorMessage);
-        }
         var query = mapper.Map<Query>(queryDTO);
         var users = await userService.GetUsersAsync(query);
-        return  Ok(mapper.Map<List<UserDTO>>(users));
+        var userDTOs = mapper.Map<List<UserDTO>>(users);
+        var pagedDTO = new PagedList<UserDTO>(userDTOs, users.TotalCount, users.CurrentPage, users.PageSize);
+        return Ok(pagedDTO);
     }
   
 

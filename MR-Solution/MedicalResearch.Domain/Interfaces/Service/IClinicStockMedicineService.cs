@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 
 namespace MedicalResearch.Domain.Interfaces.Service
@@ -7,7 +8,7 @@ namespace MedicalResearch.Domain.Interfaces.Service
     {
         Task<ClinicStockMedicine?> GetClinicStockMedicineByIdAsync(int id);
         Task<ClinicStockMedicine?> GetClinicStockMedicineAsync(int clinicId, int medicineId);
-        Task<List<ClinicStockMedicine>> GetClinicStockMedicinesAsync(Query query);
-        Task<List<ClinicStockMedicine>> GetClinicStockMedicinesByClinicIdAsync(int clinicId, Query query);
+        Task<PagedList<ClinicStockMedicine>> GetClinicStockMedicinesAsync(Query query);
+        Task<PagedList<ClinicStockMedicine>> GetClinicStockMedicinesByClinicIdAsync(int clinicId, Query query);
     }
 }

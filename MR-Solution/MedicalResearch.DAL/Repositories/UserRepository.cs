@@ -18,27 +18,8 @@ internal class UserRepository(MedicalResearchDbContext _context): BaseRepository
     {
         return await _dbSet.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Email == email);
     }
-    public async Task<List<User>> SearchByTermAsync(Query query)
+    public async Task<PagedList<User>> SearchByTermAsync(Query query)
     {
-        var result = _dbSet.SearchByTerm(query.SearchTerm)
-                           .Skip(query.Skip)
-                           .Take(query.Take);
-        if (string.IsNullOrEmpty(query.SortColumn))
-        {
-            query.SortColumn = "Id";
-        }
-        var prop = typeof(User).GetProperty(query.SortColumn)?.Name ?? typeof(User).GetProperties().FirstOrDefault()?.Name;
-        if (prop != null)
-        {
-            if (query.IsAscending)
-            {
-                result = result.OrderBy(t => prop);
-            }
-            else
-            {
-                result = result.OrderByDescending(t => prop);
-            }
-        }
-        return await result.AsNoTracking().ToListAsync();           
+        return await _dbSet.SearchByTerm(query.SearchTerm).SortSkipTakeAsync(query);
     }
 }

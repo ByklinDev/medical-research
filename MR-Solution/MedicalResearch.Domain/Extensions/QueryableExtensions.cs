@@ -1,4 +1,5 @@
 ﻿using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -103,6 +104,7 @@ namespace MedicalResearch.Domain.Extensions
             return query.Where(x => EF.Functions.Like(x.Name.ToLower(), $"%{term}%"));
         }
 
+
         public static IQueryable<User> SearchByTerm(this IQueryable<User> query, string? term)
         {
             if (string.IsNullOrEmpty(term))
@@ -150,6 +152,31 @@ namespace MedicalResearch.Domain.Extensions
 
             term = term.Trim().ToLower();
             return query.Where(x => EF.Functions.Like(x.Number.ToLower(), $"%{term}%"));
+        }
+
+
+
+        public static  async Task<PagedList<T>> SortSkipTakeAsync<T>(this IQueryable<T> t, Query query) where T : class
+        {
+            if (string.IsNullOrEmpty(query.SortColumn))
+            {
+                query.SortColumn = "Id";
+            }
+            var prop = typeof(T).GetProperty(query.SortColumn);
+            if (prop != null)
+            {
+                if (query.IsAscending)
+                {
+                    t = t.OrderBy(t => EF.Property<object>(t, query.SortColumn));
+                }
+                else
+                {
+                    t = t.OrderByDescending(t => EF.Property<object>(t, query.SortColumn));
+                }
+            }
+            var result = await PagedList<T>.ToPagedList(t, query.Skip, query.Take);
+                  
+            return result;
         }
     }
 }
