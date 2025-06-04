@@ -42,27 +42,27 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : Entity
         return true;
     }
 
-    public virtual async Task<List<T>> GetAllAsync(Query query)
+    public virtual async Task<PagedList<T>> GetAllAsync(Query query)
     {
-        if (query.SortColumn == null)
+        var t = _dbSet.AsQueryable();
+        if (string.IsNullOrEmpty(query.SortColumn))
         {
             query.SortColumn = "Id";
         }
-        else
-        {
-            if (typeof(T).GetProperty(query.SortColumn) == null)
-            {
-                query.SortColumn = "Id";
-            }
-        }
-        var prop = typeof(T).GetProperty(query.SortColumn)?.Name?? typeof(T).GetProperties().FirstOrDefault()?.Name;
-        var result = _dbSet.Skip(query.Skip)
-                           .Take(query.Take > 0 && query.Take < AppConstants.PAGE_MAX_SIZE ? query.Take : AppConstants.PAGE_DEFAULT_SIZE);
+        var prop = typeof(T).GetProperty(query.SortColumn);
         if (prop != null)
         {
-            result = result.OrderBy(x => prop);
+            if (query.IsAscending)
+            {
+                t = t.OrderBy(t => EF.Property<object>(t, query.SortColumn));
+            }
+            else
+            {
+                t = t.OrderByDescending(t => EF.Property<object>(t, query.SortColumn));
+            }
         }
-        return await result.ToListAsync();
+        var result = await PagedList<T>.ToPagedList(t, query.Skip, query.Take);
+        return result;
     }
 
     public virtual T Update(T entity)
