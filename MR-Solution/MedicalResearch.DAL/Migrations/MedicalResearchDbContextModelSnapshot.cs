@@ -346,6 +346,9 @@ namespace MedicalResearch.DAL.Migrations
 
                     b.HasIndex("ClinicId");
 
+                    b.HasIndex("Number")
+                        .IsUnique();
+
                     b.ToTable("Patients", (string)null);
 
                     b.UseTpcMappingStrategy();
@@ -414,7 +417,13 @@ namespace MedicalResearch.DAL.Migrations
                     b.Property<DateTime>("DateArrival")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("MedicineId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -422,6 +431,8 @@ namespace MedicalResearch.DAL.Migrations
                     b.HasIndex("ClinicId");
 
                     b.HasIndex("MedicineId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Supplies", (string)null);
 
@@ -486,8 +497,8 @@ namespace MedicalResearch.DAL.Migrations
                             FirstName = "Admin",
                             Initials = "",
                             LastName = "",
-                            Password = "NN2UYK0GaglNHHPmmtV+PWZwidOXz2FGVOyijjcJPkQ=",
-                            PaswordSalt = new byte[] { 108, 84, 39, 88, 8, 173, 154, 70, 104, 165, 114, 83, 94, 31, 23, 149, 2, 55, 233, 24, 111, 98, 182, 231, 121, 154, 211, 207, 114, 42, 192, 1 },
+                            Password = "faEedsYMP273c0FVeJ/7qX39a3Is1ai7y/1jfGnGUrk=",
+                            PaswordSalt = new byte[] { 140, 49, 183, 189, 83, 185, 204, 190, 188, 207, 123, 61, 112, 47, 245, 234, 162, 204, 37, 154, 28, 149, 139, 244, 238, 78, 57, 196, 168, 186, 223, 98 },
                             State = 0
                         });
                 });
@@ -643,9 +654,17 @@ namespace MedicalResearch.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MedicalResearch.Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Clinic");
 
                     b.Navigation("Medicine");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.User", b =>

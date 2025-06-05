@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using System;
@@ -10,16 +11,13 @@ using System.Threading.Tasks;
 namespace MedicalResearch.Domain.Validations
 {
     public class PatientValidator: AbstractValidator<Patient>
-    {
-        private readonly IClinicService _clinicService;
-        private readonly IPatientService _patientService;
-        public PatientValidator(IClinicService clinicService, IPatientService patientService)
-        {
-
-            _clinicService = clinicService;
-            _patientService = patientService;
-            
+    {  
+        private readonly IUnitOfWork _unitOfWork;
   
+        public PatientValidator(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+
             RuleFor(x => x.DateOfBirth)
                 .NotEmpty()
                 .WithMessage("Date of birth is required.")
@@ -30,15 +28,15 @@ namespace MedicalResearch.Domain.Validations
                 .NotEmpty().WithMessage("Sex is required.")
                 .IsInEnum().WithMessage("Sex must be a valid enum value.");
 
-           
+
             RuleFor(x => x.Number)
                 .NotEmpty().WithMessage("Number is required.")
                 .Matches(@"^\d{3}-\d{4}$").WithMessage("Number must be in the format 000-0000.")
-                .MustAsync(async(p, cancellationToken) => { return await _clinicService.GetClinicAsync(Convert.ToInt32(p.Split('-')[0])) != null; })
+                .MustAsync(async (p, cancellationToken) => { return await _unitOfWork.ClinicRepository.GetByIdAsync(Convert.ToInt32(p.Split('-')[0])) != null; })
                 .WithMessage("Number of clinic is not exist")
-                .Must((p, cancellationToken) => { return patientService.GetPatientByNumber(p.Number) != null; })
-                .WithMessage("Patient with this number already exists.");
-        }
+                .MustAsync(async (d, cancellationToken1) => { return await _unitOfWork.PatientRepository.GetPatientByNumber(d) == null; })
+                .WithMessage($"Patient with this number already exist");
 
+        }
     }
 }

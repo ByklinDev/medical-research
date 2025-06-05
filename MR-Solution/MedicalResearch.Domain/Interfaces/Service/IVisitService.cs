@@ -1,4 +1,6 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,7 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<bool> DeleteVisitAsync(int id);
         Task<Visit> UpdateVisitAsync(Visit visit);
         Task<Visit?> GetVisitAsync(int id);
-        Task<List<Visit>> GetVisitsAsync();
+        Task<PagedList<Visit>> GetVisitsAsync(Query query);
         int GetNumberOfNextVisit(int patientId);
     }
 }

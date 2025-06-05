@@ -1,15 +1,16 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedicalResearch.Domain.Interfaces.Repository
+namespace MedicalResearch.Domain.Interfaces.Repository;
+
+public interface ISupplyRepository: IBaseRepository<Supply>
 {
-    public interface ISupplyRepository: IBaseRepository<Supply>
-    {        
-        Task<List<Supply>> GetSuppliesByClinicIdAsync(int clinicId);
-        Task<List<Supply>> GetSuppliesByMedicineIdAsync(int medicineId);
-    }
+    Task<PagedList<Supply>> GetInactiveSuppliesByUserIdAsync(int userId, Query query);
+    Task<PagedList<Supply>> SearchByTermAsync(int? clinicId, int? medicineId, Query query);
 }

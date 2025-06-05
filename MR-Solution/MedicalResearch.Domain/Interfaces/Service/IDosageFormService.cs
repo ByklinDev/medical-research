@@ -1,4 +1,6 @@
-﻿using MedicalResearch.Domain.Models;
+﻿using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.Models;
+using MedicalResearch.Domain.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,6 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<bool> DeleteDosageFormAsync(int id);
         Task<DosageForm> UpdateDosageFormAsync(DosageForm dosageForm);
         Task<DosageForm?> GetDosageFormAsync(int id);
-        Task<List<DosageForm>> GetDosageFormsAsync();
+        Task<PagedList<DosageForm>> GetDosageFormsAsync(Query query);
     }
 }

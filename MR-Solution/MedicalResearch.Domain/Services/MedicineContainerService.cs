@@ -1,69 +1,111 @@
 ﻿using FluentValidation;
 using MedicalResearch.DAL.UnitOfWork;
 using MedicalResearch.Domain.Exceptions;
-using MedicalResearch.Domain.Interfaces.Repository;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
-using MedicalResearch.Domain.Validations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MedicalResearch.Domain.Queries;
+using Microsoft.Extensions.Logging;
 
-namespace MedicalResearch.Domain.Services
+namespace MedicalResearch.Domain.Services;
+
+public class MedicineContainerService(IUnitOfWork unitOfWork, IValidator<MedicineContainer> medicineContainerValidator, ILogger<MedicineContainerService> logger) : IMedicineContainerService
 {
-    public class MedicineContainerService(IUnitOfWork unitOfWork, IValidator<MedicineContainer> medicineContainerValidator) : IMedicineContainerService
+    public async Task<MedicineContainer> AddMedicineContainerAsync(MedicineContainer medicineContainer)
     {
-        public async Task<MedicineContainer> AddMedicineContainerAsync(MedicineContainer medicineContainer)
+        MedicineContainer? added;
+        int countAdded;
+        var validationResult = await medicineContainerValidator.ValidateAsync(medicineContainer);
+        if (!validationResult.IsValid)
         {
-            var validationResult = await medicineContainerValidator.ValidateAsync(medicineContainer);
-            if (!validationResult.IsValid)
-            {
-                throw new DomainException(validationResult.Errors.First().ErrorMessage);
-            }
-            var existingMedicineContainer = await unitOfWork.MedicineContainerRepository.GetMedicineContainerByNameAsync(medicineContainer.Name);
-            if (existingMedicineContainer != null)
-            {
-                throw new DomainException("Medicine container already exists.");
-            }
-            var added =  await unitOfWork.MedicineContainerRepository.AddAsync(medicineContainer);
-            return await unitOfWork.SaveAsync() > 0 ? added : throw new DomainException("Medicine container not added.");
+            throw new DomainException(validationResult.Errors.First().ErrorMessage);
         }
-
-        public async Task<bool> DeleteMedicineContainerAsync(int id)
+        var existingMedicineContainer = await unitOfWork.MedicineContainerRepository.GetMedicineContainerByNameAsync(medicineContainer.Name);
+        if (existingMedicineContainer != null)
         {
-            var existingMedicineContainer = await unitOfWork.MedicineContainerRepository.GetByIdAsync(id) ?? throw new DomainException("Medicine container not found.");
-            var isDelete =  unitOfWork.MedicineContainerRepository.Delete(existingMedicineContainer);
+            throw new DomainException("Medicine container already exists.");
+        }
+        try
+        {
+            added = await unitOfWork.MedicineContainerRepository.AddAsync(medicineContainer);
+            countAdded = await unitOfWork.SaveAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Medicine container {medicineContainer} could not be added: {message}", medicineContainer.Name, ex.Message);
+            throw new DomainException($"Error while adding Medicine container {medicineContainer.Name}");
+        }
+        return countAdded > 0 && added != null ? added : throw new DomainException("Medicine container not added");
+    }
+
+    public async Task<bool> DeleteMedicineContainerAsync(int id)
+    {
+        var existingMedicineContainer = await unitOfWork.MedicineContainerRepository.GetByIdAsync(id) ?? throw new DomainException("Medicine container not found.");
+        try
+        {
+            var isDelete = unitOfWork.MedicineContainerRepository.Delete(existingMedicineContainer);
             return isDelete && await unitOfWork.SaveAsync() > 0;
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Medicine container with id {id} could not be deleted: {message}", id, ex.Message);
+            throw new DomainException($"Error while deleting Medicine container with id {id}");
+        }
+    }
 
-        public async Task<MedicineContainer?> GetMedicineContainerAsync(int id)
+    public async Task<MedicineContainer?> GetMedicineContainerAsync(int id)
+    {
+        try
         {
             return await unitOfWork.MedicineContainerRepository.GetByIdAsync(id);
         }
-
-        public async Task<List<MedicineContainer>> GetMedicineContainersAsync()
+        catch (Exception ex)
         {
-            return await unitOfWork.MedicineContainerRepository.GetAllAsync();
+            logger.LogError(ex, "Medicine container with id {id} could not be retrieved: {message}", id, ex.Message);
+            throw new DomainException($"Error while retrieving Medicine container with id {id}");
+        }
+    }
+
+    public async Task<PagedList<MedicineContainer>> GetMedicineContainersAsync(Query query)
+    {
+        try
+        {
+            return await unitOfWork.MedicineContainerRepository.SearchByTermAsync(query);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while retrieving medicine containers: {message}", ex.Message);
+            throw new DomainException("Error while retrieving medicine containers");
+        }
+    }
+
+    public async Task<MedicineContainer> UpdateMedicineContainerAsync(MedicineContainer medicineContainer)
+    {
+        MedicineContainer? updated;
+        int countUpdated;
+        var validationResult = await medicineContainerValidator.ValidateAsync(medicineContainer);
+        if (!validationResult.IsValid)
+        {
+            throw new DomainException(validationResult.Errors.First().ErrorMessage);
+        }
+        var existingMedicineContainer = await unitOfWork.MedicineContainerRepository.GetByIdAsync(medicineContainer.Id) ?? throw new DomainException("Medicine container not found");
+        var existingMedicineContainerByName = await unitOfWork.MedicineContainerRepository.GetMedicineContainerByNameAsync(medicineContainer.Name);
+        if (existingMedicineContainerByName != null && existingMedicineContainerByName.Id != medicineContainer.Id)
+        {
+            throw new DomainException("Medicine container with this name already exists");
         }
 
-        public async Task<MedicineContainer> UpdateMedicineContainerAsync(MedicineContainer medicineContainer)
+        try
         {
-            var validationResult = await medicineContainerValidator.ValidateAsync(medicineContainer);
-            if (!validationResult.IsValid)
-            {
-                throw new DomainException(validationResult.Errors.First().ErrorMessage);
-            }
-            var existingMedicineContainer = await unitOfWork.MedicineContainerRepository.GetByIdAsync(medicineContainer.Id) ?? throw new DomainException("Medicine container not found");
-            var existingMedicineContainerByName = await unitOfWork.MedicineContainerRepository.GetMedicineContainerByNameAsync(medicineContainer.Name);
-            if (existingMedicineContainerByName != null && existingMedicineContainerByName.Id != medicineContainer.Id)
-            {
-                throw new DomainException("Medicine container with this name already exists");
-            }
             existingMedicineContainer.Name = medicineContainer.Name;
-            var updated = unitOfWork.MedicineContainerRepository.Update(existingMedicineContainer);
-            return await unitOfWork.SaveAsync() > 0 ? updated : throw new DomainException("Medicine container not updated");
+            updated = unitOfWork.MedicineContainerRepository.Update(existingMedicineContainer);
+            countUpdated = await unitOfWork.SaveAsync();
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Medicine container {medicineContainer} could not be updated: {message}", medicineContainer.Name, ex.Message);
+            throw new DomainException($"Error while updating Medicine container {medicineContainer.Name}");
+        }
+        return countUpdated > 0 && updated != null ? updated : throw new DomainException("Medicine container not updated");
     }
 }
