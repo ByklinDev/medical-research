@@ -11,11 +11,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MedicalResearch.Api.Filters;
 
-public class CheckDTOFilterAttribute<T> : Attribute, IAsyncActionFilter where T : Entity
+public class QueryDTOValidatorFilter<T> : Attribute, IAsyncActionFilter where T : Entity
 {
     private readonly IValidator<QueryDTO>? _validator;
 
-    public CheckDTOFilterAttribute(IEnumerable<IValidator<QueryDTO>> validators) 
+    public QueryDTOValidatorFilter(IEnumerable<IValidator<QueryDTO>> validators) 
     {
         if (!validators.Any())
         {

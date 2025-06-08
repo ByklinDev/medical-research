@@ -55,17 +55,17 @@ builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Visit>>();
 builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Patient>>();
 builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<ClinicStockMedicine>>();
 
-builder.Services.AddScoped<CheckDTOFilterAttribute<MedicineContainer>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<Medicine>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<MedicineType>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<User>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<Role>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<Supply>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<Visit>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<ClinicStockMedicine>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<DosageForm>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<Clinic>>();
-builder.Services.AddScoped<CheckDTOFilterAttribute<Patient>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<MedicineContainer>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<Medicine>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<MedicineType>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<User>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<Role>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<Supply>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<Visit>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<ClinicStockMedicine>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<DosageForm>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<Clinic>>();
+builder.Services.AddScoped<QueryDTOValidatorFilter<Patient>>();
 
 
 builder.Services.AddScoped<IClinicService, ClinicService>();

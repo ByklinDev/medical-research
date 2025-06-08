@@ -25,7 +25,7 @@ public class SuppliesController(IMapper mapper,
 {
     // GET: api/<SupplyController>
     [HttpGet]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Supply>))]
     [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesAsync([FromQuery] QueryDTO queryDTO)
     {
@@ -37,7 +37,7 @@ public class SuppliesController(IMapper mapper,
     }
 
     [HttpGet("Clinics/{clinicId}")]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Supply>))]
     [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByClinicAsync(int clinicId, [FromQuery] QueryDTO queryDTO)
     {
@@ -53,7 +53,7 @@ public class SuppliesController(IMapper mapper,
     }
 
     [HttpGet("Medicines/{medicineId}")]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Supply>))]
     [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByMedicineAsync(int medicineId, [FromQuery] QueryDTO queryDTO)
     {
@@ -69,7 +69,7 @@ public class SuppliesController(IMapper mapper,
     }
 
     [HttpGet("Clinics/{clinicId}/Medicines/{medicineId}")]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Supply>))]
     [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesByMedicineAsync(int clinicId, int medicineId, [FromQuery] QueryDTO queryDTO)
     {
@@ -85,7 +85,7 @@ public class SuppliesController(IMapper mapper,
     }
 
     [HttpGet("Users/{userId}")]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<Supply>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Supply>))]
     [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetInactiveSuppliesByUserIdAsync(int userId, [FromQuery] QueryDTO queryDTO)
     {

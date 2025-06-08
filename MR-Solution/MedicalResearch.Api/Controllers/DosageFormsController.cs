@@ -18,7 +18,7 @@ public class DosageFormsController(IMapper mapper, IDosageFormService dosageForm
 {
     // GET: api/<DosageFormController>
     [HttpGet]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<DosageForm>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<DosageForm>))]
     [PageListFilter<DosageFormDTO>]
     public async Task<ActionResult<IEnumerable<DosageFormDTO>>> GetDosageForms([FromQuery] QueryDTO queryDTO)
     {

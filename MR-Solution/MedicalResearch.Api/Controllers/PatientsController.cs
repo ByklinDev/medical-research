@@ -19,7 +19,7 @@ public class PatientsController(IMapper mapper, IPatientService patientService )
 {
     // GET: api/<PatientController>
     [HttpGet]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<Patient>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Patient>))]
     [PageListFilter<PatientDTO>]
     public async Task<ActionResult<IEnumerable<PatientDTO>>> GetPatients([FromQuery] QueryDTO queryDTO)
     {

@@ -19,7 +19,7 @@ public class RolesController(IMapper mapper, IRoleService roleService) : Control
 {
     // GET: api/<RoleController>
     [HttpGet]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<Role>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Role>))]
     [PageListFilter<RoleDTO>]
     public async Task<ActionResult<List<RoleDTO>>> GetRoles([FromQuery] QueryDTO queryDTO)
     {
