@@ -19,7 +19,7 @@ public class MedicineTypesController(IMapper mapper, IMedicineTypeService medici
 {
     // GET: api/<MedicineTypeController>
     [HttpGet]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<MedicineType>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<MedicineType>))]
     [PageListFilter<MedicineTypeDTO>]
     public async Task<ActionResult<IEnumerable<MedicineTypeDTO>>> GetMedicineTypes([FromQuery] QueryDTO queryDTO)
     {

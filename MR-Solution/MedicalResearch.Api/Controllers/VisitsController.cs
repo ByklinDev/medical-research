@@ -18,7 +18,7 @@ public class VisitsController(IMapper mapper, IVisitService visitService) : Cont
 {
     // GET: api/<VisitController>
     [HttpGet]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<Visit>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Visit>))]
     [PageListFilter<VisitDTO>]
     public async Task<ActionResult<IEnumerable<VisitDTO>>> GetVisits([FromQuery] QueryDTO queryDTO)
     {

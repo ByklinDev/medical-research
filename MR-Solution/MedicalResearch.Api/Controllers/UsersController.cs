@@ -18,7 +18,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
 {
     // GET: api/<UserController>
     [HttpGet]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<User>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<User>))]
     [PageListFilter<UserDTO>]
     public async Task<ActionResult<List<UserDTO>>> GetUsers([FromQuery] QueryDTO queryDTO)
     {

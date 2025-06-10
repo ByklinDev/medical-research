@@ -13,8 +13,8 @@ namespace MedicalResearch.Domain.Models
     {
         [Required]
         public string Description { get; set; } = string.Empty;
-        public DateTime ExpireAt { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime ExpireAt { get; set; } = DateTime.UtcNow.AddMonths(12);
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public int Amount { get; set; }
         public int MedicineTypeId { get; set; }
         public MedicineType MedicineType { get; set; } = new ();

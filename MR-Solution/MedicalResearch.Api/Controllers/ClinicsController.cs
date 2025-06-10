@@ -18,7 +18,7 @@ public class ClinicsController(IMapper mapper, IClinicService clinicService) : C
 {
     // GET: api/<ClinicController>
     [HttpGet]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<Clinic>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Clinic>))]
     [PageListFilter<ClinicDTO>]
     public async Task<ActionResult<List<ClinicDTO>>> GetClinics([FromQuery] QueryDTO queryDTO)
     {

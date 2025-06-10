@@ -12,13 +12,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MedicalResearch.Api.Controllers;
 
-[Route("api/[controller]s")]
+[Route("api/[controller]")]
 [ApiController]
 public class ClinicStockMedicinesController(IMapper mapper, IClinicStockMedicineService clinicStockMedicineService) : ControllerBase
 {
     // GET: api/<ClinicStockMedicineController>
     [HttpGet]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<ClinicStockMedicine>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<ClinicStockMedicine>))]
     [PageListFilter<ClinicStockMedicineDTO>]
     public async Task<ActionResult<IEnumerable<ClinicStockMedicineDTO>>> GetClinicStockMedicines([FromQuery] QueryDTO queryDTO)
     {
@@ -31,7 +31,7 @@ public class ClinicStockMedicinesController(IMapper mapper, IClinicStockMedicine
 
     // GET api/<ClinicStockMedicineController>/5
     [HttpGet("Clinics/{clinicId}")]
-    [ServiceFilter(typeof(CheckDTOFilterAttribute<ClinicStockMedicine>))]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<ClinicStockMedicine>))]
     [PageListFilter<ClinicStockMedicineDTO>]
     public async Task<ActionResult<IEnumerable<ClinicStockMedicineDTO>>> GetClinicStockMedicinesByClinicIdAsync(int clinicId, [FromQuery] QueryDTO queryDTO)
     {
