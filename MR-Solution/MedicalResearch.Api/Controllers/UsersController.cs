@@ -8,14 +8,17 @@ using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MedicalResearch.Api.Controllers;
+
 
 [Route("api/[controller]")]
 [ApiController]
 public class UsersController(IUserService userService, IRoleService roleService, IMapper mapper, IValidator<UserCreateDTO> userValidator) : ControllerBase
 {
+    [Authorize]
     // GET: api/<UserController>
     [HttpGet]
     [ServiceFilter(typeof(QueryDTOValidatorFilter<User>))]
@@ -28,8 +31,8 @@ public class UsersController(IUserService userService, IRoleService roleService,
         var pagedDTO = new PagedList<UserDTO>(userDTOs, users.TotalCount, users.CurrentPage, users.PageSize);
         return Ok(pagedDTO);
     }
-  
 
+    
     // GET api/<UserController>/5
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDTO>> GetUser(int id)
@@ -41,7 +44,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
         }
         return Ok(mapper.Map<UserDTO>(user));
     }
-
+    
     // POST api/<UserController>
     [HttpPost]
     public async Task<ActionResult<UserDTO>> AddUser([FromBody] UserCreateDTO userDTO)
@@ -61,7 +64,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
         return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, mapper.Map<UserDTO>(createdUser));
     }
 
-
+    [Authorize]
     [HttpPut("{userId}/Roles/{roleId}")]
     public async Task<ActionResult> AddUserRole(int userId, int roleId)
     {
@@ -82,7 +85,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
         }
         return Ok();
     }
-
+    [Authorize]
     // PUT api/<UserController>/5
     [HttpPut("{id}")]
     public async Task<ActionResult<UserDTO>> EditUser(int id, [FromBody] UserDTO userDTO)
@@ -100,7 +103,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
         return Ok(mapper.Map<UserDTO>(updatedUser));
     }
 
-
+    [Authorize]
     [HttpPatch("{id}")]
     public async Task<ActionResult<UserState>> SetUserState(int id, UserState state)
     {
@@ -120,7 +123,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
         }
         return Ok(result);
     }
-
+    [Authorize]
     // DELETE api/<UserController>/5
     [HttpDelete("{id}")]
     public async Task<ActionResult<bool>> DeleteUser(int id)
@@ -137,7 +140,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
         }
         return Ok(isDeleted);
     }
-
+    [Authorize]
     [HttpDelete("{userId}/Roles/{roleId}")]
     public async Task<ActionResult> DeleteUserRole(int userId, int roleId)
     {

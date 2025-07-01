@@ -7,6 +7,7 @@ using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MedicalResearch.Api.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class MedicineContainersController(IMapper mapper, IMedicineContainerService medicineContainerService) : ControllerBase

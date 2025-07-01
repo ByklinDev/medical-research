@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -13,44 +14,12 @@ namespace MedicalResearch.DAL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateSequence(
-                name: "ClinicSequence");
-
-            migrationBuilder.CreateSequence(
-                name: "ClinicStockMedicineSequence");
-
-            migrationBuilder.CreateSequence(
-                name: "DosageFormSequence");
-
-            migrationBuilder.CreateSequence(
-                name: "MedicineContainerSequence");
-
-            migrationBuilder.CreateSequence(
-                name: "MedicineSequence");
-
-            migrationBuilder.CreateSequence(
-                name: "MedicineTypeSequence");
-
-            migrationBuilder.CreateSequence(
-                name: "PatientSequence");
-
-            migrationBuilder.CreateSequence(
-                name: "RoleSequence");
-
-            migrationBuilder.CreateSequence(
-                name: "SupplySequence");
-
-            migrationBuilder.CreateSequence(
-                name: "UserSequence");
-
-            migrationBuilder.CreateSequence(
-                name: "VisitSequence");
-
             migrationBuilder.CreateTable(
                 name: "Clinics",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"ClinicSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     City = table.Column<string>(type: "text", nullable: false),
                     AddressOne = table.Column<string>(type: "text", nullable: false),
@@ -66,7 +35,8 @@ namespace MedicalResearch.DAL.Migrations
                 name: "DosageForms",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"DosageFormSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -75,22 +45,24 @@ namespace MedicalResearch.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MedicinesContainers",
+                name: "MedicineContainers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"MedicineContainerSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MedicinesContainers", x => x.Id);
+                    table.PrimaryKey("PK_MedicineContainers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "MedicinesTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"MedicineTypeSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -102,7 +74,9 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Roles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"RoleSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'5', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -114,7 +88,8 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Patients",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"PatientSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Number = table.Column<string>(type: "text", nullable: false),
                     ClinicId = table.Column<int>(type: "integer", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -136,7 +111,9 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"UserSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'2', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     FirstName = table.Column<string>(type: "text", nullable: false),
                     LastName = table.Column<string>(type: "text", nullable: false),
                     Initials = table.Column<string>(type: "text", nullable: false),
@@ -160,7 +137,8 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Medicines",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"MedicineSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Description = table.Column<string>(type: "text", nullable: false),
                     ExpireAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -180,9 +158,9 @@ namespace MedicalResearch.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Medicines_MedicinesContainers_MedicineContainerId",
+                        name: "FK_Medicines_MedicineContainers_MedicineContainerId",
                         column: x => x.MedicineContainerId,
-                        principalTable: "MedicinesContainers",
+                        principalTable: "MedicineContainers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -221,7 +199,8 @@ namespace MedicalResearch.DAL.Migrations
                 name: "ClinicsStockMedicines",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"ClinicStockMedicineSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Amount = table.Column<int>(type: "integer", nullable: false),
                     ClinicId = table.Column<int>(type: "integer", nullable: false),
                     MedicineId = table.Column<int>(type: "integer", nullable: false)
@@ -247,7 +226,8 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Supplies",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"SupplySequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     DateArrival = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Amount = table.Column<int>(type: "integer", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
@@ -282,7 +262,8 @@ namespace MedicalResearch.DAL.Migrations
                 name: "Visits",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('\"VisitSequence\"')"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ClinicId = table.Column<int>(type: "integer", nullable: false),
                     PatientId = table.Column<int>(type: "integer", nullable: false),
                     DateOfVisit = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -356,7 +337,7 @@ namespace MedicalResearch.DAL.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "MedicinesContainers",
+                table: "MedicineContainers",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
@@ -392,7 +373,7 @@ namespace MedicalResearch.DAL.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "ClinicId", "Email", "FirstName", "Initials", "LastName", "Password", "PaswordSalt", "State" },
-                values: new object[] { 1, null, "byklin@list.ru", "Admin", "", "", "faEedsYMP273c0FVeJ/7qX39a3Is1ai7y/1jfGnGUrk=", new byte[] { 140, 49, 183, 189, 83, 185, 204, 190, 188, 207, 123, 61, 112, 47, 245, 234, 162, 204, 37, 154, 28, 149, 139, 244, 238, 78, 57, 196, 168, 186, 223, 98 }, 0 });
+                values: new object[] { 1, null, "byklin@list.ru", "David", "", "Duchovny", "EtnPrreEPKcr+oJrhUUXYV6SsdD7diUtuH9hM86U5PE=", new byte[] { 137, 236, 71, 98, 96, 13, 158, 202, 31, 27, 227, 208, 114, 118, 225, 96, 224, 209, 135, 219, 122, 75, 226, 152, 194, 145, 202, 134, 8, 137, 219, 94 }, 0 });
 
             migrationBuilder.InsertData(
                 table: "UserRole",
@@ -427,6 +408,12 @@ namespace MedicalResearch.DAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_MedicineContainers_Name",
+                table: "MedicineContainers",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Medicines_DosageFormId",
                 table: "Medicines",
                 column: "DosageFormId");
@@ -440,12 +427,6 @@ namespace MedicalResearch.DAL.Migrations
                 name: "IX_Medicines_MedicineTypeId",
                 table: "Medicines",
                 column: "MedicineTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MedicinesContainers_Name",
-                table: "MedicinesContainers",
-                column: "Name",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_MedicinesTypes_Name",
@@ -556,46 +537,13 @@ namespace MedicalResearch.DAL.Migrations
                 name: "DosageForms");
 
             migrationBuilder.DropTable(
-                name: "MedicinesContainers");
+                name: "MedicineContainers");
 
             migrationBuilder.DropTable(
                 name: "MedicinesTypes");
 
             migrationBuilder.DropTable(
                 name: "Clinics");
-
-            migrationBuilder.DropSequence(
-                name: "ClinicSequence");
-
-            migrationBuilder.DropSequence(
-                name: "ClinicStockMedicineSequence");
-
-            migrationBuilder.DropSequence(
-                name: "DosageFormSequence");
-
-            migrationBuilder.DropSequence(
-                name: "MedicineContainerSequence");
-
-            migrationBuilder.DropSequence(
-                name: "MedicineSequence");
-
-            migrationBuilder.DropSequence(
-                name: "MedicineTypeSequence");
-
-            migrationBuilder.DropSequence(
-                name: "PatientSequence");
-
-            migrationBuilder.DropSequence(
-                name: "RoleSequence");
-
-            migrationBuilder.DropSequence(
-                name: "SupplySequence");
-
-            migrationBuilder.DropSequence(
-                name: "UserSequence");
-
-            migrationBuilder.DropSequence(
-                name: "VisitSequence");
         }
     }
 }

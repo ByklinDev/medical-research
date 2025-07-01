@@ -8,6 +8,9 @@ using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using MedicalResearch.Domain.Extensions;
+using System.Reflection.Metadata.Ecma335;
+using MedicalResearch.Domain.Utilites;
+using System.Text;
 
 namespace MedicalResearch.Domain.Services;
 
@@ -23,7 +26,11 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
         {
             throw new DomainException(result.Errors[0].ToString());
         }
-        var existingUser = unitOfWork.UserRepository.GetUserByEmailAsync(user.Email);
+        var salt = SecurePassword.GenerateSalt();
+        var hmac = SecurePassword.ComputeHMAC_SHA256(Encoding.UTF8.GetBytes(user.Password), salt);
+        user.PaswordSalt = salt;
+        user.Password = Convert.ToBase64String(hmac);
+        var existingUser = await unitOfWork.UserRepository.GetUserByEmailAsync(user.Email);
         if (existingUser != null)
         {
             throw new DomainException("User with this email already exists");
@@ -31,7 +38,8 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
 
         try
         {
-            user.Roles.Add(new Role() { Id = 3, Name = "Researcher" });
+            var role = await unitOfWork.RoleRepository.GetByIdAsync(3) ?? throw new DomainException("Default role not found");
+            user.Roles.Add(role);
             added = await unitOfWork.UserRepository.AddAsync(user);
             countAdded = await unitOfWork.SaveAsync();
         }
@@ -98,7 +106,7 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
         {
             userToDelete.Roles.Remove(existingRole);
             var updated = unitOfWork.UserRepository.Update(userToDelete);
-            return updated != null && await unitOfWork.SaveAsync() > 0; 
+            return updated != null && await unitOfWork.SaveAsync() > 0;
         }
         catch (Exception ex)
         {
@@ -190,7 +198,7 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
         {
             existingUser.State = state;
             updated = unitOfWork.UserRepository.Update(existingUser);
-            countUpdated = await unitOfWork.SaveAsync();  
+            countUpdated = await unitOfWork.SaveAsync();
         }
         catch (Exception ex)
         {
@@ -198,5 +206,22 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
             throw new DomainException($"Error while setting state for User {user.Email}");
         }
         return countUpdated > 0 && updated != null ? updated.State : throw new DomainException("User state not set");
+    }
+
+
+    public async Task<bool> ValidateUserAsync(string email, string password)
+    {
+        var existingUser = await unitOfWork.UserRepository.GetUserByEmailAsync(email);
+        if (existingUser == null)
+        {
+            return false; // User not found
+        }
+        // Validate password
+        var hmac = SecurePassword.ComputeHMAC_SHA256(Encoding.UTF8.GetBytes(password), existingUser.PaswordSalt);
+        if (Convert.ToBase64String(hmac) == existingUser.Password)
+        {
+            return true; // Password is valid
+        }
+        return false; // Invalid password
     }
 }

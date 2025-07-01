@@ -7,12 +7,14 @@ using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
 
 namespace MedicalResearch.Api.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class PatientsController(IMapper mapper, IPatientService patientService ) : ControllerBase

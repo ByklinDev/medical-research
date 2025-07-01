@@ -8,10 +8,12 @@ using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using MedicalResearch.Api.Filters;
 using MedicalResearch.Domain.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace MedicalResearch.Api.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ClinicsController(IMapper mapper, IClinicService clinicService) : ControllerBase
