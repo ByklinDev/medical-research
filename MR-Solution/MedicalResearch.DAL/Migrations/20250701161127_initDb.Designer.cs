@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedicalResearch.DAL.Migrations
 {
     [DbContext(typeof(MedicalResearchDbContext))]
-    [Migration("20250530124500_initDb")]
+    [Migration("20250701161127_initDb")]
     partial class initDb
     {
         /// <inheritdoc />
@@ -24,28 +24,6 @@ namespace MedicalResearch.DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.HasSequence("ClinicSequence");
-
-            modelBuilder.HasSequence("ClinicStockMedicineSequence");
-
-            modelBuilder.HasSequence("DosageFormSequence");
-
-            modelBuilder.HasSequence("MedicineContainerSequence");
-
-            modelBuilder.HasSequence("MedicineSequence");
-
-            modelBuilder.HasSequence("MedicineTypeSequence");
-
-            modelBuilder.HasSequence("PatientSequence");
-
-            modelBuilder.HasSequence("RoleSequence");
-
-            modelBuilder.HasSequence("SupplySequence");
-
-            modelBuilder.HasSequence("UserSequence");
-
-            modelBuilder.HasSequence("VisitSequence");
 
             modelBuilder.Entity("ClinicStockMedicineSupply", b =>
                 {
@@ -66,10 +44,9 @@ namespace MedicalResearch.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"ClinicSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AddressOne")
                         .IsRequired()
@@ -94,19 +71,16 @@ namespace MedicalResearch.DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Clinics", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("Clinics");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.ClinicStockMedicine", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"ClinicStockMedicineSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
@@ -123,19 +97,16 @@ namespace MedicalResearch.DAL.Migrations
 
                     b.HasIndex("MedicineId");
 
-                    b.ToTable("ClinicsStockMedicines", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("ClinicsStockMedicines");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.DosageForm", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"DosageFormSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -146,9 +117,7 @@ namespace MedicalResearch.DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("DosageForms", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("DosageForms");
 
                     b.HasData(
                         new
@@ -182,10 +151,9 @@ namespace MedicalResearch.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"MedicineSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
@@ -220,19 +188,16 @@ namespace MedicalResearch.DAL.Migrations
 
                     b.HasIndex("MedicineTypeId");
 
-                    b.ToTable("Medicines", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("Medicines");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.MedicineContainer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"MedicineContainerSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -243,9 +208,7 @@ namespace MedicalResearch.DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("MedicinesContainers", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("MedicineContainers");
 
                     b.HasData(
                         new
@@ -279,10 +242,9 @@ namespace MedicalResearch.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"MedicineTypeSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -293,9 +255,7 @@ namespace MedicalResearch.DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("MedicinesTypes", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("MedicinesTypes");
 
                     b.HasData(
                         new
@@ -324,10 +284,9 @@ namespace MedicalResearch.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"PatientSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClinicId")
                         .HasColumnType("integer");
@@ -352,19 +311,17 @@ namespace MedicalResearch.DAL.Migrations
                     b.HasIndex("Number")
                         .IsUnique();
 
-                    b.ToTable("Patients", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("Patients");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"RoleSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 5L, null, null, null, null, null);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -375,9 +332,7 @@ namespace MedicalResearch.DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
@@ -406,10 +361,9 @@ namespace MedicalResearch.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"SupplySequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
@@ -437,19 +391,17 @@ namespace MedicalResearch.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Supplies", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("Supplies");
                 });
 
             modelBuilder.Entity("MedicalResearch.Domain.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"UserSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 2L, null, null, null, null, null);
 
                     b.Property<int?>("ClinicId")
                         .HasColumnType("integer");
@@ -488,20 +440,18 @@ namespace MedicalResearch.DAL.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             Email = "byklin@list.ru",
-                            FirstName = "Admin",
+                            FirstName = "David",
                             Initials = "",
-                            LastName = "",
-                            Password = "faEedsYMP273c0FVeJ/7qX39a3Is1ai7y/1jfGnGUrk=",
-                            PaswordSalt = new byte[] { 140, 49, 183, 189, 83, 185, 204, 190, 188, 207, 123, 61, 112, 47, 245, 234, 162, 204, 37, 154, 28, 149, 139, 244, 238, 78, 57, 196, 168, 186, 223, 98 },
+                            LastName = "Duchovny",
+                            Password = "EtnPrreEPKcr+oJrhUUXYV6SsdD7diUtuH9hM86U5PE=",
+                            PaswordSalt = new byte[] { 137, 236, 71, 98, 96, 13, 158, 202, 31, 27, 227, 208, 114, 118, 225, 96, 224, 209, 135, 219, 122, 75, 226, 152, 194, 145, 202, 134, 8, 137, 219, 94 },
                             State = 0
                         });
                 });
@@ -510,10 +460,9 @@ namespace MedicalResearch.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('\"VisitSequence\"')");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClinicId")
                         .HasColumnType("integer");
@@ -543,9 +492,7 @@ namespace MedicalResearch.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Visits", (string)null);
-
-                    b.UseTpcMappingStrategy();
+                    b.ToTable("Visits");
                 });
 
             modelBuilder.Entity("UserRole", b =>

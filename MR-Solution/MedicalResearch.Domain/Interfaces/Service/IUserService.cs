@@ -21,5 +21,6 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<bool> AddUserRole(User user, Role role);
         Task<bool> DeleteUserRole(User user, Role role);
         Task<UserState> SetState(User user, UserState state);
+        Task<bool> ValidateUserAsync(string email, string password);
     }
 }

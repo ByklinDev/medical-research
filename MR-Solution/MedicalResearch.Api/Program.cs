@@ -7,10 +7,12 @@ using MedicalResearch.Api.Filters;
 using MedicalResearch.Api.Middleware;
 using MedicalResearch.DAL.DataContext;
 using MedicalResearch.DAL.UnitOfWork;
+using MedicalResearch.Domain.Configurations;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Services;
 using MedicalResearch.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
@@ -22,13 +24,37 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
+builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection(nameof(JwtConfiguration)));
 
-builder.Services.AddSwaggerGen(setup => setup.SwaggerDoc("v1", new OpenApiInfo()
-{
-    Description = "Medical Research Api",
-    Title = "Medical Research",
-    Version = "v1",
-}));
+builder.Services.AddSwaggerGen(setup => {
+    setup.SwaggerDoc("v1", new OpenApiInfo()
+    {
+        Description = "Medical Research Api",
+        Title = "Medical Research",
+        Version = "v1",
+    });
+    setup.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+    {
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        Type = SecuritySchemeType.Http,
+        Name = "Authorization",
+    });
+    setup.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+});
 
 builder.Services.AddAutoMapper(typeof(AppAutoMapperProfile).Assembly);
 builder.Services.AddScoped<IValidator<User>, UserValidator>();
@@ -79,10 +105,39 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISupplyService, SupplyService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
-
+builder.Services.AddScoped<ITokensService, TokensService>();
 
 DALRegistrator.RegisterService(builder.Services, builder.Configuration, builder.Environment.IsDevelopment());
+
+var frontendUrl = builder.Configuration.GetValue<string>("FrontendUrl") ?? "https://localhost:4200";
+builder.Services.AddCors(setup =>
+{
+    setup.AddPolicy("FrontendCors",
+        policy => policy.WithOrigins(frontendUrl)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+        );
+});
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+var jwtConfig = builder.Configuration.GetSection(nameof(JwtConfiguration)).Get<JwtConfiguration>();
+if (jwtConfig != null)
+{
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(config => {
+        config.Audience = jwtConfig.Audience;
+        config.RequireHttpsMetadata = false;
+
+        config.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtConfig.Issuer,
+            ValidAudience = jwtConfig.Audience,
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtConfig.SecretKey))
+        };
+    });
+}
 
 var app = builder.Build();
 
@@ -100,7 +155,11 @@ else
 app.UseStatusCodePages();
 app.UseHttpsRedirection();
 
+app.UseCors("FrontendCors");
+
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 

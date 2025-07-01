@@ -8,10 +8,11 @@ using FluentValidation;
 using MedicalResearch.Api.DTOValidators;
 using MedicalResearch.Api.Filters;
 using MedicalResearch.Domain.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace MedicalResearch.Api.Controllers;
-
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class DosageFormsController(IMapper mapper, IDosageFormService dosageFormService) : ControllerBase
