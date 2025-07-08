@@ -74,14 +74,10 @@ namespace MedicalResearch.DAL.DataContext
             modelBuilder.Entity<MedicineContainer>().HasData(new MedicineContainer() { Id = 4, Name = "ampoule" });
             modelBuilder.Entity<MedicineContainer>().HasData(new MedicineContainer() { Id = 5, Name = "vial" });
 
-            modelBuilder.Entity<User>().Property(x => x.Id).HasIdentityOptions(startValue: 2, incrementBy: 1);
-            modelBuilder.Entity<Role>().Property(x => x.Id).HasIdentityOptions(startValue: 5, incrementBy: 1);
-
-
             var salt = SecurePassword.GenerateSalt();
             var hmac = SecurePassword.ComputeHMAC_SHA256(Encoding.UTF8.GetBytes("admin635"), salt);
             
-            modelBuilder.Entity<User>().HasData(new User() { Id = 1, FirstName = "David", LastName = "Duchovny", Email = "byklin@list.ru", PaswordSalt = salt, Password = Convert.ToBase64String(hmac) });
+            modelBuilder.Entity<User>().HasData(new User() { Id = 1, FirstName = "David", LastName = "Duchovny", Email = "byklin@list.ru", PasswordSalt = salt, Password = Convert.ToBase64String(hmac) });
 
             modelBuilder.Entity<User>().HasMany(p => p.Roles).WithMany(s => s.Users)
                 .UsingEntity<Dictionary<string, object>>(

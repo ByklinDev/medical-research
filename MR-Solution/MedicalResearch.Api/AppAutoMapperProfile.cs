@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MedicalResearch.Api.DTO;
-using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.DTO;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 
@@ -13,6 +13,7 @@ public class AppAutoMapperProfile : Profile
         CreateMap<User, UserDTO>();
         CreateMap<UserDTO, User>();
         CreateMap<UserCreateDTO, User>();
+        CreateMap<UserUpdateDTO, User>();
 
         CreateMap<Role, RoleDTO>();
         CreateMap<RoleDTO, Role>();

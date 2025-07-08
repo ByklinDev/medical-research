@@ -8,9 +8,9 @@ using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using MedicalResearch.Domain.Extensions;
-using System.Reflection.Metadata.Ecma335;
 using MedicalResearch.Domain.Utilites;
 using System.Text;
+using MedicalResearch.Domain.DTO;
 
 namespace MedicalResearch.Domain.Services;
 
@@ -28,7 +28,7 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
         }
         var salt = SecurePassword.GenerateSalt();
         var hmac = SecurePassword.ComputeHMAC_SHA256(Encoding.UTF8.GetBytes(user.Password), salt);
-        user.PaswordSalt = salt;
+        user.PasswordSalt = salt;
         user.Password = Convert.ToBase64String(hmac);
         var existingUser = await unitOfWork.UserRepository.GetUserByEmailAsync(user.Email);
         if (existingUser != null)
@@ -154,28 +154,25 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
         }
     }
 
-    public async Task<User> UpdateUserAsync(User user)
+    public async Task<User> UpdateUserAsync(UserUpdateDTO user)
     {
         User? updated;
         int countUpdated;
 
-        var result = userValidator.Validate(user);
-        if (!result.IsValid)
-        {
-            throw new DomainException(result.Errors[0].ToString());
-        }
         var existingUser = await unitOfWork.UserRepository.GetByIdAsync(user.Id) ?? throw new DomainException("User not found");
 
         try
         {
             existingUser.FirstName = user.FirstName;
             existingUser.LastName = user.LastName;
-            existingUser.Password = user.Password;
-            existingUser.ClinicId = user.ClinicId;
             existingUser.Initials = user.Initials;
-            existingUser.State = user.State;
-            existingUser.PaswordSalt = user.PaswordSalt;
-            existingUser.Roles = user.Roles;
+            if (user.NewPassword.Length > 0) 
+            {
+                var salt = SecurePassword.GenerateSalt();
+                var hmac = SecurePassword.ComputeHMAC_SHA256(Encoding.UTF8.GetBytes(user.NewPassword), salt);
+                existingUser.PasswordSalt = salt;
+                existingUser.Password = Convert.ToBase64String(hmac);
+            }
 
             updated = unitOfWork.UserRepository.Update(existingUser);
             countUpdated = await unitOfWork.SaveAsync();
@@ -209,6 +206,43 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
     }
 
 
+    public async Task<string> SetImage(User user, byte[] image)
+    {
+        User? updated;
+        int countUpdated;
+
+
+        var existingUser = await unitOfWork.UserRepository.GetUserByEmailAsync(user.Email) ?? throw new DomainException("User not found");
+        try
+        {
+            existingUser.Image = image;
+            updated = unitOfWork.UserRepository.Update(existingUser);
+            countUpdated = await unitOfWork.SaveAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "User {user} image could not be set: {message}", user.Email, ex.Message);
+            throw new DomainException($"Error while setting image for User {user.Email}");
+        }
+        if (updated.Image == null)
+        {
+            throw new DomainException("User image not set");
+        }
+        var imageSrc = string.Format("data:Image/*;base64" + Convert.ToBase64String(updated.Image));
+        return countUpdated > 0 && updated != null ? imageSrc : throw new DomainException("User image not set");
+    }
+
+    public async Task<string>  GetUserImage(int userid)
+    {
+        var user = await unitOfWork.UserRepository.GetByIdAsync(userid) ?? throw new DomainException("User not found");
+        if (user.Image == null || user.Image.Length == 0)
+        {
+            return string.Empty; // No image available
+        }
+        var imageSrc = string.Format("data:Image/*;base64," + Convert.ToBase64String(user.Image));
+        return imageSrc;
+    } 
+
     public async Task<bool> ValidateUserAsync(string email, string password)
     {
         var existingUser = await unitOfWork.UserRepository.GetUserByEmailAsync(email);
@@ -217,7 +251,7 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
             return false; // User not found
         }
         // Validate password
-        var hmac = SecurePassword.ComputeHMAC_SHA256(Encoding.UTF8.GetBytes(password), existingUser.PaswordSalt);
+        var hmac = SecurePassword.ComputeHMAC_SHA256(Encoding.UTF8.GetBytes(password), existingUser.PasswordSalt);
         if (Convert.ToBase64String(hmac) == existingUser.Password)
         {
             return true; // Password is valid
