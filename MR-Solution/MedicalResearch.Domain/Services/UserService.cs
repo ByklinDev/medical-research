@@ -159,21 +159,13 @@ public class UserService(IUnitOfWork unitOfWork, IValidator<User> userValidator,
         User? updated;
         int countUpdated;
 
-        /*var result = userValidator.Validate(user);
-        if (!result.IsValid)
-        {
-            throw new DomainException(result.Errors[0].ToString());
-        }*/
         var existingUser = await unitOfWork.UserRepository.GetByIdAsync(user.Id) ?? throw new DomainException("User not found");
 
         try
         {
             existingUser.FirstName = user.FirstName;
             existingUser.LastName = user.LastName;
-            
-        
             existingUser.Initials = user.Initials;
-        //    existingUser.State = user.State;
             if (user.NewPassword.Length > 0) 
             {
                 var salt = SecurePassword.GenerateSalt();
