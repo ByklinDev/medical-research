@@ -2,11 +2,7 @@
 using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MedicalResearch.Domain.DTO;
 
 namespace MedicalResearch.Domain.Interfaces.Service
 {
@@ -14,13 +10,15 @@ namespace MedicalResearch.Domain.Interfaces.Service
     {
         Task<User> AddUserAsync(User user);
         Task<bool> DeleteUserAsync(int id);
-        Task<User> UpdateUserAsync(User user);
+        Task<User> UpdateUserAsync(UserUpdateDTO user);
         Task<User?> GetUserAsync(int id);
         Task<PagedList<User>> GetUsersAsync(Query query);
         Task<User?> GetUserByEmailAsync(string email);
         Task<bool> AddUserRole(User user, Role role);
         Task<bool> DeleteUserRole(User user, Role role);
         Task<UserState> SetState(User user, UserState state);
+        Task<string> SetImage(User user, byte[] image);
+        Task<string> GetUserImage(int userid);
         Task<bool> ValidateUserAsync(string email, string password);
     }
 }

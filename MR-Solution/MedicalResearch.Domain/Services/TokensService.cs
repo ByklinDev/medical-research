@@ -28,6 +28,9 @@ namespace MedicalResearch.Domain.Services
             new Claim(JwtRegisteredClaimNames.Iss, jwtConfig.Value.Issuer),
             new Claim("firstName", user.FirstName),
             new Claim("lastName", user.LastName),
+            new Claim("initials", user.Initials),
+            new Claim("email", user.Email),
+            new Claim("oldPassword", user.Password),
 
         };
             foreach (var role in user.Roles)
@@ -41,8 +44,7 @@ namespace MedicalResearch.Domain.Services
                 Expires = DateTime.UtcNow.AddMinutes(jwtConfig.Value.ExpirationInMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(securityKey), SecurityAlgorithms.HmacSha256Signature),
                 Audience = jwtConfig.Value.Audience,
-                Issuer = jwtConfig.Value.Issuer,
-                
+                Issuer = jwtConfig.Value.Issuer,                
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);

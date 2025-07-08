@@ -18,9 +18,10 @@ namespace MedicalResearch.Domain.Models
         public string Email { get; set; } = string.Empty;   
         public UserState State { get; set; }
         public string Password { get; set; } = string.Empty;
-        public byte[] PaswordSalt { get; set; } = [];
+        public byte[] PasswordSalt { get; set; } = [];
         public int? ClinicId { get; set; }
         public Clinic? Clinic { get; set; }
         public List<Role> Roles { get; set; } = [];
+        public byte[]? Image {  get; set; }
     }
 }

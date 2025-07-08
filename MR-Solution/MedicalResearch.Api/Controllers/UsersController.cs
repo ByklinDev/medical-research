@@ -3,6 +3,7 @@ using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
 using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.DTO;
 using MedicalResearch.Domain.Enums;
 using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
@@ -16,7 +17,7 @@ namespace MedicalResearch.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UsersController(IUserService userService, IRoleService roleService, IMapper mapper, IValidator<UserCreateDTO> userValidator) : ControllerBase
+public class UsersController(IUserService userService, IRoleService roleService, IMapper mapper, IValidator<UserCreateDTO> userValidator, IValidator<UserUpdateDTO> updateValidator) : ControllerBase
 {
     [Authorize]
     // GET: api/<UserController>
@@ -32,19 +33,19 @@ public class UsersController(IUserService userService, IRoleService roleService,
         return Ok(pagedDTO);
     }
 
-    
+
     // GET api/<UserController>/5
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDTO>> GetUser(int id)
     {
         var user = await userService.GetUserAsync(id);
-        if (user == null) 
+        if (user == null)
         {
             return NotFound();
         }
         return Ok(mapper.Map<UserDTO>(user));
     }
-    
+
     // POST api/<UserController>
     [HttpPost]
     public async Task<ActionResult<UserDTO>> AddUser([FromBody] UserCreateDTO userDTO)
@@ -55,7 +56,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
             return BadRequest(validationResult.Errors[0].ToString());
         }
         var user = mapper.Map<User>(userDTO);
-        user.State = UserState.Active;            
+        user.State = UserState.Active;
         var createdUser = await userService.AddUserAsync(user);
         if (createdUser == null)
         {
@@ -88,18 +89,24 @@ public class UsersController(IUserService userService, IRoleService roleService,
     [Authorize]
     // PUT api/<UserController>/5
     [HttpPut("{id}")]
-    public async Task<ActionResult<UserDTO>> EditUser(int id, [FromBody] UserDTO userDTO)
+    public async Task<ActionResult<UserDTO>> EditUser(int id, [FromBody] UserUpdateDTO userDTO)
     {
         if (id != userDTO.Id)
         {
             return BadRequest("User ID mismatch");
-        }           
-        var user = mapper.Map<User>(userDTO);
-        var updatedUser = await userService.UpdateUserAsync(user);
+        }
+        var validationResult = updateValidator.Validate(userDTO);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors[0].ToString());
+        }
+
+        var updatedUser = await userService.UpdateUserAsync(userDTO);
         if (updatedUser == null)
         {
             return NotFound();
         }
+
         return Ok(mapper.Map<UserDTO>(updatedUser));
     }
 
@@ -123,6 +130,48 @@ public class UsersController(IUserService userService, IRoleService roleService,
         }
         return Ok(result);
     }
+
+
+
+    [Authorize]
+    [HttpPatch("{id}/photo")]
+    public async Task<ActionResult<string>> UploadUserImage(int id, IFormFile file)
+    {
+        var user = await userService.GetUserAsync(id);
+        if (user == null)
+        {
+            return NotFound($"User Id = {id}");
+        }
+        if (file.Length > 0)
+        {
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                var imageData = stream.ToArray();
+                var result = await userService.SetImage(user, imageData);
+                return Ok(result);
+            }
+        }
+        return BadRequest("File is empty or not provided");
+    }
+
+
+    [Authorize]
+    [HttpGet("{id}/photo")]
+    public async Task<ActionResult<string>> GetUserImage(int id)
+    {
+        var user = await userService.GetUserAsync(id);
+        if (user == null)
+        {
+            return NotFound($"User Id = {id}");
+        }
+
+        var result = await userService.GetUserImage(user.Id);
+
+        return Ok(result);
+    }
+
+
     [Authorize]
     // DELETE api/<UserController>/5
     [HttpDelete("{id}")]
