@@ -30,6 +30,8 @@ public class AppAutoMapperProfile : Profile
         CreateMap<Medicine, MedicineDTO>();
         CreateMap<MedicineDTO, Medicine>();
         CreateMap<MedicineCreateDTO, Medicine>();
+        CreateMap<MedicineUpdateDTO, Medicine>();
+
 
         CreateMap<Supply, SupplyDTO>();
         CreateMap<SupplyDTO, Supply>();

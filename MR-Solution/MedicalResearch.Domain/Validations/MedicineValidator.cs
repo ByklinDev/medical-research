@@ -43,8 +43,7 @@ namespace MedicalResearch.Domain.Validations
                 .MustAsync(async (x, cancellationToken) => { return await _medicineTypeService.GetMedicineTypeAsync(x) != null; })
                 .WithMessage("Medicine Type does not exist.");
             RuleFor(m => m.CreatedAt)
-                .NotEmpty().WithMessage("Creation Date is required.")
-                .LessThanOrEqualTo(DateTime.UtcNow).WithMessage("Creation Date must be in the past or present.");
+                .NotEmpty().WithMessage("Creation Date is required");
             RuleFor(m => m.State)
                 .NotEmpty().WithMessage("State is required.")
                 .IsInEnum().WithMessage("State must be a valid enum value.");

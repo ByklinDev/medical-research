@@ -1,0 +1,35 @@
+services:
+  medicalresearch.api:
+    image: ${DOCKER_REGISTRY-}medicalresearchapi
+    build:
+      context: .
+      dockerfile: MedicalResearch.Api/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    ports:
+      - 8080
+      - 8081
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=testpassword
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+  db:
+    image: postgres:latest
+    container_name: postgres_container
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d medresearchdb"]
+      interval: 10s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medresearchdb
+    ports:
+      - "5432:5432"

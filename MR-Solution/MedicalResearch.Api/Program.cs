@@ -14,6 +14,7 @@ using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Services;
 using MedicalResearch.Domain.Validations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
@@ -154,6 +155,13 @@ else
 {
     app.UseMiddleware<ExceptionMiddleware>();
 }
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<MedicalResearchDbContext>();
+    dbContext.Database.Migrate();
+}
+
+
 app.UseStatusCodePages();
 app.UseHttpsRedirection();
 

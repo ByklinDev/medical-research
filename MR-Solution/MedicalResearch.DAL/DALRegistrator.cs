@@ -13,13 +13,10 @@ namespace MedicalResearch.DAL.DataContext
     {
         public static void RegisterService(IServiceCollection services, IConfiguration configuration, bool isDevelopment)
         {
-            if (isDevelopment)
-            {
-                services.AddDbContext<MedicalResearchDbContext>(options =>
-                    options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
-                );
-            }
-            
+            services.AddDbContext<MedicalResearchDbContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
+            );
+
         }
     }
 }
