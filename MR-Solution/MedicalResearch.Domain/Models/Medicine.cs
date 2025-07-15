@@ -17,11 +17,11 @@ namespace MedicalResearch.Domain.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public int Amount { get; set; }
         public int MedicineTypeId { get; set; }
-        public MedicineType MedicineType { get; set; } = new ();
+        public MedicineType? MedicineType { get; set; } = new ();
         public int MedicineContainerId { get; set; }
-        public MedicineContainer MedicineContainer { get; set; } = new ();
+        public MedicineContainer? MedicineContainer { get; set; } = new ();
         public int DosageFormId { get; set; }
-        public DosageForm DosageForm { get; set; } = new ();
+        public DosageForm? DosageForm { get; set; } = new ();
         public MedicineState State { get; set; }
         public List<Supply> Supplies { get; set; } = [];
     }

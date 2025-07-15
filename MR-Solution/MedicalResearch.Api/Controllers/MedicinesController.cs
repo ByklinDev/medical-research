@@ -60,7 +60,7 @@ public class MedicinesController(IMapper mapper, IMedicineService medicineServic
 
     // PUT api/<MedicineController>/5
     [HttpPut("{id}")]
-    public async Task<ActionResult<MedicineDTO>> EditMedicine(int id, [FromBody] MedicineDTO medicineDTO)
+    public async Task<ActionResult<MedicineDTO>> EditMedicine(int id, [FromBody] MedicineUpdateDTO medicineDTO)
     {
         if (medicineDTO == null || medicineDTO.Id != id)
         {

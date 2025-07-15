@@ -13,5 +13,12 @@ namespace MedicalResearch.Api.DTO
         public int Amount { get; set; }
         public int MedicineTypeId { get; set; }
         public MedicineType MedicineType { get; set; } = new();
+
+        public int MedicineContainerId { get; set; }
+        public MedicineContainer MedicineContainer { get; set; } = new();
+
+        public int DosageFormId { get; set; }
+        public DosageForm DosageForm { get; set; } = new();
+
     }
 }

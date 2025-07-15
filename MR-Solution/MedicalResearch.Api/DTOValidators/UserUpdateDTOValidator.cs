@@ -31,9 +31,7 @@ public class UserUpdateDTOValidator : AbstractValidator<UserUpdateDTO>
                 .Must(s => s.Any(char.IsLetter))
                 .WithMessage("Initials should contain at least one letter.");
         RuleFor(x => x.ConfirmPassword)
-                .NotEmpty()
-                .WithMessage("Password repeat is required.")
-                .Equal(x => x.NewPassword)
-                .WithMessage("Password and Password repeat must match.");
+            .Equal(x => x.NewPassword)
+            .WithMessage(errorMessage: "Confirm Password must match New Password.");
     }
 }

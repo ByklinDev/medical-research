@@ -23,7 +23,7 @@ namespace MedicalResearch.Domain.Extensions
                 EF.Functions.Like(x.Medicine.Description.ToLower(), $"%{term}%") && x.Amount > 0 && x.ClinicId.Equals(clinicId));
         }
 
-        public static IQueryable<ClinicStockMedicine> SearchByTerm(this IQueryable<ClinicStockMedicine> query, string? term )
+        public static IQueryable<ClinicStockMedicine> SearchByTerm(this IQueryable<ClinicStockMedicine> query, string? term)
         {
             if (string.IsNullOrEmpty(term))
             {
@@ -32,7 +32,7 @@ namespace MedicalResearch.Domain.Extensions
 
             term = term.Trim().ToLower();
             return query.Where(x =>
-                EF.Functions.Like(x.Medicine.Description.ToLower(), $"%{term}%") && x.Amount > 0 );
+                EF.Functions.Like(x.Medicine.Description.ToLower(), $"%{term}%") && x.Amount > 0);
         }
 
         public static IQueryable<Clinic> SearchByTerm(this IQueryable<Clinic> query, string? term)
@@ -43,7 +43,11 @@ namespace MedicalResearch.Domain.Extensions
             }
 
             term = term.Trim().ToLower();
-            return query.Where(x => EF.Functions.Like(x.Name.ToLower(), $"%{term}%"));
+            return query.Where(x => EF.Functions.Like(x.Name.ToLower(), $"%{term}%")
+                                 || EF.Functions.Like(x.City.ToLower(), $"%{term}%")
+                                 || EF.Functions.Like(x.AddressOne.ToLower(), $"%{term}%")
+                                 || ( x.AddressTwo != null && EF.Functions.Like(x.AddressTwo.ToLower(), $"%{term}%"))
+                                 || ( x.Phone != null && EF.Functions.Like(x.Phone.ToLower(), $"%{term}%")));
         }
 
         public static IQueryable<DosageForm> SearchByTerm(this IQueryable<DosageForm> query, string? term)
@@ -85,11 +89,17 @@ namespace MedicalResearch.Domain.Extensions
         {
             if (string.IsNullOrEmpty(term))
             {
-                return query;
+                return query
+                    .Include(x => x.MedicineType)
+                    .Include(x => x.DosageForm)
+                    .Include(x => x.MedicineContainer);
             }
 
             term = term.Trim().ToLower();
-            return query.Where(x => EF.Functions.Like(x.Description.ToLower(), $"%{term}%"));
+            return query.Where(x => EF.Functions.Like(x.Description.ToLower(), $"%{term}%"))
+                .Include(x => x.MedicineType)
+                .Include(x => x.DosageForm)
+                .Include(x => x.MedicineContainer);
         }
 
 

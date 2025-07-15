@@ -15,6 +15,11 @@ public class MedicineService(IUnitOfWork unitOfWork, IValidator<Medicine> medici
     {
         Medicine? added;
         int countAdded;
+        medicine.State = Enums.MedicineState.Ok;
+        medicine.ExpireAt = medicine.ExpireAt.ToUniversalTime();
+        medicine.MedicineContainer = await unitOfWork.MedicineContainerRepository.GetByIdAsync(medicine.MedicineContainerId);
+        medicine.DosageForm = await unitOfWork.DosageFormRepository.GetByIdAsync(medicine.DosageFormId);
+        medicine.MedicineType = await unitOfWork.MedicineTypeRepository.GetByIdAsync(medicine.MedicineTypeId);
 
         var validationResult = await medicineValidator.ValidateAsync(medicine);
         if (!validationResult.IsValid)
@@ -86,22 +91,28 @@ public class MedicineService(IUnitOfWork unitOfWork, IValidator<Medicine> medici
         Medicine? updated;
         int countUpdated;
 
-        var validationResult = await medicineValidator.ValidateAsync(medicine);
+        var existingMedicine = await unitOfWork.MedicineRepository.GetByIdAsync(medicine.Id) ?? throw new DomainException("Medicine not found");
+
+        existingMedicine.Description = medicine.Description;
+        existingMedicine.ExpireAt = medicine.ExpireAt.ToUniversalTime();
+        existingMedicine.Amount = medicine.Amount;
+        existingMedicine.MedicineTypeId = medicine.MedicineTypeId;
+        existingMedicine.MedicineContainerId = medicine.MedicineContainerId;
+        existingMedicine.DosageFormId = medicine.DosageFormId;
+        existingMedicine.State = medicine.State;
+
+        existingMedicine.DosageForm = await unitOfWork.DosageFormRepository.GetByIdAsync(medicine.DosageFormId);
+        existingMedicine.MedicineContainer = await unitOfWork.MedicineContainerRepository.GetByIdAsync(medicine.MedicineContainerId);
+        existingMedicine.MedicineType = await unitOfWork.MedicineTypeRepository.GetByIdAsync(medicine.MedicineTypeId);
+
+        var validationResult = await medicineValidator.ValidateAsync(existingMedicine);
         if (!validationResult.IsValid)
         {
             throw new DomainException(validationResult.Errors.First().ErrorMessage);
         }
-        var existingMedicine = await unitOfWork.MedicineRepository.GetByIdAsync(medicine.Id) ?? throw new DomainException("Medicine not found");
 
         try
         {
-            existingMedicine.Description = medicine.Description;
-            existingMedicine.ExpireAt = medicine.ExpireAt;
-            existingMedicine.Amount = medicine.Amount;
-            existingMedicine.MedicineTypeId = medicine.MedicineTypeId;
-            existingMedicine.MedicineContainerId = medicine.MedicineContainerId;
-            existingMedicine.DosageFormId = medicine.DosageFormId;
-            existingMedicine.State = medicine.State;
             updated = unitOfWork.MedicineRepository.Update(existingMedicine);
             countUpdated = await unitOfWork.SaveAsync();
         }
