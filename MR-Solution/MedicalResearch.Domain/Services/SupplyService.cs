@@ -16,7 +16,7 @@ public class SupplyService(IUnitOfWork unitOfWork, IValidator<Supply> validator,
         List<Supply> addedSupplies = [];
         foreach (var sup in supplies)
         {
-            var supply = await unitOfWork.SupplyRepository.GetByIdAsync(sup.Id) ?? throw new DomainException("Supply not found for id: " + sup.Id);
+            var supply = await unitOfWork.SupplyRepository.GetSupplyByIdAsync(sup.Id) ?? throw new DomainException("Supply not found for id: " + sup.Id);
             if (supply.IsActive == true)
             {
                 throw new DomainException("Supply cannot be active when adding to supply list");
@@ -25,17 +25,18 @@ public class SupplyService(IUnitOfWork unitOfWork, IValidator<Supply> validator,
             {
                 throw new DomainException("You cannot add supplies that you did not create");
             }
-            var medicineToSupply = await unitOfWork.MedicineRepository.GetByIdAsync(supply.MedicineId) ?? throw new DomainException("Medicine not found");
-            if (medicineToSupply.Amount < supply.Amount)
+//            var medicineToSupply = await unitOfWork.MedicineRepository.GetByIdAsync(supply.MedicineId) ?? throw new DomainException("Medicine not found");
+            if (supply.Medicine.Amount < supply.Amount)
             {
                 throw new DomainException("Not enough medicine in stock");
             }
             else
             {
-                medicineToSupply.Amount -= supply.Amount;
-                unitOfWork.MedicineRepository.Update(medicineToSupply);
+                supply.Medicine.Amount -= supply.Amount;
+                //unitOfWork.MedicineRepository.Update(medicineToSupply);
             }
             supply.IsActive = true;
+            
             var addedSupply = unitOfWork.SupplyRepository.Update(supply) ?? throw new DomainException("Supply could not be updated");
 
             var clinicStockMedicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(supply.MedicineId, supply.ClinicId);
@@ -50,7 +51,9 @@ public class SupplyService(IUnitOfWork unitOfWork, IValidator<Supply> validator,
                 {
                     MedicineId = supply.MedicineId,
                     ClinicId = supply.ClinicId,
-                    Amount = supply.Amount
+                    Amount = supply.Amount,
+                    Clinic = supply.Clinic,
+                    Medicine = supply.Medicine,
                 };
                 await unitOfWork.ClinicStockMedicineRepository.AddAsync(newClinicStockMedicine);
             }
@@ -83,10 +86,23 @@ public class SupplyService(IUnitOfWork unitOfWork, IValidator<Supply> validator,
             MedicineId = medicine.Id,
             Amount = amount,
             ClinicId = clinicId,
-            DateArrival = DateTime.Now,
+            DateArrival = DateTime.UtcNow,
             IsActive = false,
             UserId = userId
         };
+        var clinic = await unitOfWork.ClinicRepository.GetByIdAsync(clinicId);
+        var user = await unitOfWork.UserRepository.GetByIdAsync(userId);
+        if (user != null)
+        {
+            supply.User = user;
+        }
+        if (clinic != null)
+        {
+            supply.Clinic = clinic;
+        }
+
+        supply.Medicine = medicine;
+
         var resultValidation = await validator.ValidateAsync(supply);
         if (!resultValidation.IsValid)
         {
@@ -105,37 +121,63 @@ public class SupplyService(IUnitOfWork unitOfWork, IValidator<Supply> validator,
         return countAdded > 0 && added != null ? added : throw new DomainException("Supply not added");
     }
 
+
+
+
+
+
     public async Task<bool> DeleteSupplyAsync(int id)
     {
         int countDeleted = 0;
 
         var existingSupply = await unitOfWork.SupplyRepository.GetByIdAsync(id) ?? throw new DomainException("Supply not found");
-        var medicine = await unitOfWork.MedicineRepository.GetByIdAsync(existingSupply.MedicineId) ?? throw new DomainException("Medicine not found");
-        var clinicStockMedicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(existingSupply.MedicineId, existingSupply.ClinicId);
-        if (clinicStockMedicine == null)
+        if (existingSupply.IsActive == true)
         {
-            throw new DomainException("Clinic stock medicine not found");
-        }
-        try
-        {
-            medicine.Amount += existingSupply.Amount;
-            unitOfWork.MedicineRepository.Update(medicine);
-
-            clinicStockMedicine.Amount -= existingSupply.Amount;
-            unitOfWork.ClinicStockMedicineRepository.Update(clinicStockMedicine);
-
-            var isDelete = unitOfWork.SupplyRepository.Delete(existingSupply);
-            if (isDelete)
+            var medicine = await unitOfWork.MedicineRepository.GetByIdAsync(existingSupply.MedicineId) ?? throw new DomainException("Medicine not found");
+            var clinicStockMedicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(existingSupply.MedicineId, existingSupply.ClinicId);
+            if (clinicStockMedicine == null)
             {
-                countDeleted = await unitOfWork.SaveAsync();
+                throw new DomainException("Clinic stock medicine not found");
             }
-            return countDeleted > 0  && isDelete == true ? isDelete : throw new DomainException("Supply not deleted");
+            try
+            {
+                medicine.Amount += existingSupply.Amount;
+                unitOfWork.MedicineRepository.Update(medicine);
+
+                clinicStockMedicine.Amount -= existingSupply.Amount;
+                unitOfWork.ClinicStockMedicineRepository.Update(clinicStockMedicine);
+
+                var isDelete = unitOfWork.SupplyRepository.Delete(existingSupply);
+                if (isDelete)
+                {
+                    countDeleted = await unitOfWork.SaveAsync();
+                }
+                return countDeleted > 0 && isDelete == true ? isDelete : throw new DomainException("Supply not deleted");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Supply with id {id} could not be deleted: {message}", id, ex.Message);
+                throw new DomainException($"Error while deleting Supply with id {id}");
+            }
         }
-        catch (Exception ex)
+        else
         {
-            logger.LogError(ex, "Supply with id {id} could not be deleted: {message}", id, ex.Message);
-            throw new DomainException($"Error while deleting Supply with id {id}");
+            try
+            {
+                var isDelete = unitOfWork.SupplyRepository.Delete(existingSupply);
+                if (isDelete)
+                {
+                    countDeleted = await unitOfWork.SaveAsync();
+                }
+                return countDeleted > 0 && isDelete == true ? isDelete : throw new DomainException("Supply not deleted");
+
+            }catch (Exception ex)
+            {
+                logger.LogError(ex, "Supply with id {id} could not be deleted: {message}", id, ex.Message);
+                throw new DomainException($"Error while deleting Supply with id {id}");
+            }
         }
+
     }
 
     public async Task<PagedList<Supply>> GetSuppliesAsync(int? clinicId, int? medicineId, Query query)
@@ -169,7 +211,7 @@ public class SupplyService(IUnitOfWork unitOfWork, IValidator<Supply> validator,
     {
         try
         {
-            return await unitOfWork.SupplyRepository.GetByIdAsync(id);
+            return await unitOfWork.SupplyRepository.GetSupplyByIdAsync(id);
         }
         catch (Exception ex)
         {

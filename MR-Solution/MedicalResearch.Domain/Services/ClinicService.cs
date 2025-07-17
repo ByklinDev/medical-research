@@ -103,6 +103,7 @@ public class ClinicService(IUnitOfWork unitOfWork, IValidator<Clinic> clinicVali
             throw new DomainException($"Error while retrieving Clinic with id {id}");
         }
     }
+
     public async Task<PagedList<Clinic>> GetClinicsAsync(Query query)
     {
         try

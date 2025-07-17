@@ -10,6 +10,7 @@ using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Reflection.Metadata.Ecma335;
 
 
 namespace MedicalResearch.Api.Controllers;
@@ -23,10 +24,12 @@ public class SuppliesController(IMapper mapper,
                               IValidator<Supply> supplyValidator,
                               IUserService userService,
                               IValidator<SupplyCreateDTO> supplyCreateValidator,
-                              IMedicineService medicineService) : ControllerBase
+                              IMedicineService medicineService,
+                              IClinicService clinicService) : ControllerBase
 {
     // GET: api/<SupplyController>
     [HttpGet]
+    [ActionName(nameof(GetSuppliesAsync))]
     [ServiceFilter(typeof(QueryDTOValidatorFilter<Supply>))]
     [PageListFilter<SupplyDTO>]
     public async Task<ActionResult<IEnumerable<SupplyDTO>>> GetSuppliesAsync([FromQuery] QueryDTO queryDTO)
@@ -103,14 +106,16 @@ public class SuppliesController(IMapper mapper,
         }
         var supplies = await supplyService.GetInactiveSuppliesByUserIdAsync(userId, query);
         var supplyDTOs = mapper.Map<List<SupplyDTO>>(supplies);
+        
         var pagedDTO = new PagedList<SupplyDTO>(supplyDTOs, supplies.TotalCount, supplies.CurrentPage, supplies.PageSize);
         return Ok(pagedDTO);
     }
 
 
     // GET api/<SupplyController>/5
+    [ActionName(nameof(GetSupplyAsync))]
     [HttpGet("{id}")]
-    public async Task<ActionResult<SupplyDTO>> GetSupply(int id)
+    public async Task<ActionResult<SupplyDTO>> GetSupplyAsync(int id)
     {
         var supply = await supplyService.GetSupplyAsync(id);
         if (supply == null)
@@ -118,6 +123,7 @@ public class SuppliesController(IMapper mapper,
             return NotFound();
         }
         var supplyDTO = mapper.Map<SupplyDTO>(supply);
+
         return Ok(supplyDTO);
     }
 
@@ -135,19 +141,26 @@ public class SuppliesController(IMapper mapper,
         {
             return NotFound("Medicine not found");
         }
-        var resultMedicineValidation = medicineValidator.Validate(medicine);
+        var resultMedicineValidation = await medicineValidator.ValidateAsync(medicine);
         if (!resultMedicineValidation.IsValid)
         {
             return BadRequest(resultMedicineValidation.Errors);
         }
         var supply = await supplyService.AddToSupply(medicine, supplyCreateDTO.Amount, supplyCreateDTO.ClinicId, supplyCreateDTO.UserId);
-        var resultSupplyValidation = supplyValidator.Validate(supply);
+        var resultSupplyValidation = await supplyValidator.ValidateAsync(supply);
         if (!resultSupplyValidation.IsValid)
         {
             return BadRequest(resultSupplyValidation.Errors);
         }
+        supply.Medicine = medicine;
+        var clinic = await clinicService.GetClinicAsync(supply.ClinicId);
+        if (clinic != null)
+        {
+            supply.Clinic = clinic;
+        }
         var supplyDTO = mapper.Map<SupplyDTO>(supply);
-        return CreatedAtAction(nameof(GetSupply), new { id = supplyDTO.Id });
+        
+        return CreatedAtAction(nameof(GetSupplyAsync), new { id = supplyDTO.Id}, supplyDTO);
     }
 
 

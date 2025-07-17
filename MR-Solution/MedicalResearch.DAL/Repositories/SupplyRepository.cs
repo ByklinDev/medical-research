@@ -12,7 +12,16 @@ internal class SupplyRepository(MedicalResearchDbContext _context) : BaseReposit
 
     public async Task<PagedList<Supply>> GetInactiveSuppliesByUserIdAsync(int userId, Query query)
     {
-        return await _dbSet.Where(x => x.UserId == userId && x.IsActive == false).SortSkipTakeAsync(query);
+        return await _dbSet.Where(x => x.UserId == userId && x.IsActive == false)
+            .Include(s => s.Clinic )
+            .Include(s => s.Medicine)
+            .SortSkipTakeAsync(query);
+    }
+
+
+    public async Task<Supply?> GetSupplyByIdAsync(int id)
+    {
+        return await _dbSet.Where(x => x.Id == id).Include(s => s.Clinic).Include(s => s.Medicine).FirstOrDefaultAsync();
     }
 
     public async Task<PagedList<Supply>> SearchByTermAsync(int? clinicId, int? medicineId, Query query)
