@@ -33,7 +33,8 @@ public class AppAutoMapperProfile : Profile
         CreateMap<MedicineUpdateDTO, Medicine>();
 
 
-        CreateMap<Supply, SupplyDTO>();
+        CreateMap<Supply, SupplyDTO>().ForMember(dest=> dest.ClinicName, opt => opt.MapFrom(src=> src.Clinic.Name))
+            .ForMember(dest => dest.MedicineDescription, opt => opt.MapFrom(src => src.Medicine.Description));
         CreateMap<SupplyDTO, Supply>();
         CreateMap<SupplyCreateDTO, Supply>();
 

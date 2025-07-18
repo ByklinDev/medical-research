@@ -73,6 +73,7 @@ public class MedicineService(IUnitOfWork unitOfWork, IValidator<Medicine> medici
         }
     }
 
+
     public async Task<PagedList<Medicine>> GetMedicinesAsync(Query query)
     {
         try

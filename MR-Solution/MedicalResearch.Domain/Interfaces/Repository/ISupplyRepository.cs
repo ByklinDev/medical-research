@@ -13,4 +13,5 @@ public interface ISupplyRepository: IBaseRepository<Supply>
 {
     Task<PagedList<Supply>> GetInactiveSuppliesByUserIdAsync(int userId, Query query);
     Task<PagedList<Supply>> SearchByTermAsync(int? clinicId, int? medicineId, Query query);
+    Task<Supply?> GetSupplyByIdAsync(int id);
 }

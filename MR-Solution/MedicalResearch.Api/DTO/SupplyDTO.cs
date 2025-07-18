@@ -11,4 +11,6 @@ public class SupplyDTO
     public int MedicineId { get; set; }
     public int UserId { get; set; }
     public bool IsActive { get; set; }
+    public string MedicineDescription { get; set; } = string.Empty;
+    public string ClinicName { get; set; } = string.Empty;
 }
