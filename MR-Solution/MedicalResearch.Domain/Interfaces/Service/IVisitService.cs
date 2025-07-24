@@ -16,6 +16,7 @@ namespace MedicalResearch.Domain.Interfaces.Service
         Task<Visit> UpdateVisitAsync(Visit visit);
         Task<Visit?> GetVisitAsync(int id);
         Task<PagedList<Visit>> GetVisitsAsync(Query query);
+        Task<PagedList<Visit>> GetPatientVisitsAsync(int patientId, Query query);
         int GetNumberOfNextVisit(int patientId);
     }
 }

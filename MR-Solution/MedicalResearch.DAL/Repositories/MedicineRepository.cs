@@ -28,6 +28,11 @@ internal class MedicineRepository(MedicalResearchDbContext _context) : BaseRepos
         && x.ExpireAt == medicine.ExpireAt);
     }
 
+    public async Task<Medicine?> GetMedicineByIdAsync(int id)
+    {
+        return await _dbSet.Include(x => x.MedicineType).FirstOrDefaultAsync(x => x.Id == id);
+    }
+
     public async Task<PagedList<Medicine>> SearchByTermAsync(Query query)
     {
         return await _dbSet.SearchByTerm(query.SearchTerm).SortSkipTakeAsync(query);

@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using MedicalResearch.Api.DTO;
-using MedicalResearch.Api.DTOValidators;
 using MedicalResearch.Api.Filters;
 using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
@@ -60,6 +58,19 @@ public class ClinicStockMedicinesController(IMapper mapper, IClinicStockMedicine
     public async Task<ActionResult<ClinicStockMedicineDTO>> GetClinicStockMedicineAsync(int clinicId, int medicineId)
     {
         var clinicStockMedicine = await clinicStockMedicineService.GetClinicStockMedicineAsync(clinicId, medicineId);
+        if (clinicStockMedicine == null)
+        {
+            return NotFound();
+        }
+        var clinicStockMedicineDTO = mapper.Map<ClinicStockMedicineDTO>(clinicStockMedicine);
+        return Ok(clinicStockMedicineDTO);
+    }
+
+
+    [HttpGet("Clinics/{clinicId}/MedicineType/{medicineTypeId}")]
+    public async Task<ActionResult<ClinicStockMedicineDTO>> GetRandomClinicStockMedicineAsync(int clinicId, int medicineTypeId)
+    {
+        var clinicStockMedicine = await clinicStockMedicineService.GetRandomClinicStockMedicineAsync(clinicId, medicineTypeId);
         if (clinicStockMedicine == null)
         {
             return NotFound();

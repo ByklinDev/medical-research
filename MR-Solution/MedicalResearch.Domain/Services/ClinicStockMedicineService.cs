@@ -37,6 +37,19 @@ public class ClinicStockMedicineService(IUnitOfWork unitOfWork, ILogger<ClinicSt
         }
     }
 
+    public async Task<ClinicStockMedicine?> GetRandomClinicStockMedicineAsync(int clinicId, int medicineTypeId)
+    {
+        try
+        {
+            return await unitOfWork.ClinicStockMedicineRepository.GetRandomMedicineAsync(clinicId, medicineTypeId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error retrieving ClinicStockMedicine for ClinicId {clinicId} and MedicineId {medicineId}: {message}", clinicId, medicineTypeId, ex.Message);
+            throw new DomainException($"Error retrieving ClinicStockMedicine for ClinicId {clinicId} and MedicineTypeId {medicineTypeId}: {ex.Message}");
+        }
+    }
+
     public async Task<PagedList<ClinicStockMedicine>> GetClinicStockMedicinesByClinicIdAsync(int clinicId, Query query)
     {
         try

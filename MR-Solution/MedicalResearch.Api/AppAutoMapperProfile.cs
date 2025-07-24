@@ -40,7 +40,9 @@ public class AppAutoMapperProfile : Profile
 
         CreateMap<Patient, PatientDTO>();
         CreateMap<PatientDTO, Patient>();
+        CreateMap<PatientUpdateDTO, Patient>();
         CreateMap<PatientCreateDTO, Patient>();
+        CreateMap<PatientResearchDTO, PatientDTO>();
 
         CreateMap<MedicineContainer, MedicineContainerDTO>();
         CreateMap<MedicineContainerDTO, MedicineContainer>();
@@ -50,7 +52,8 @@ public class AppAutoMapperProfile : Profile
         CreateMap<MedicineTypeDTO, MedicineType>();
         CreateMap<MedicineTypeCreateDTO, MedicineType>();
 
-        CreateMap<Visit, VisitDTO>();
+        CreateMap<Visit, VisitDTO>().ForMember(dest => dest.MedicineDescription, opt => opt.MapFrom(src => src.Medicine.Description));
+        CreateMap<VisitCreateDTO, Visit>();
         CreateMap<VisitDTO, Visit>();
         CreateMap<VisitCreateDTO, Visit>();
 

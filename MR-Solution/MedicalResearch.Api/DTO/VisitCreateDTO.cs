@@ -7,6 +7,7 @@ namespace MedicalResearch.Api.DTO
         public int ClinicId { get; set; }
         public int PatientId { get; set; }
         public int MedicineId { get; set; }
+        public int UserId { get; set; }
        
     }
 }

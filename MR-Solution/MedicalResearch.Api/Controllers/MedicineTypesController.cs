@@ -45,6 +45,20 @@ public class MedicineTypesController(IMapper mapper, IMedicineTypeService medici
         return Ok(medicineTypeDTO);
     }
 
+    // GET api/<MedicineTypeController>/5
+    [HttpGet("Random")]
+    public async Task<ActionResult<MedicineTypeDTO>> GetRandomMedicineType()
+    {
+        var medicineType = await medicineTypeService.GetRandomMedicineTypesAsync();
+        if (medicineType == null)
+        {
+            return NotFound();
+        }
+        var medicineTypeDTO = mapper.Map<MedicineTypeDTO>(medicineType);
+        return Ok(medicineTypeDTO);
+    }
+
+
     // POST api/<MedicineTypeController>
     [HttpPost]
     public async Task<ActionResult<MedicineTypeDTO>> AddMedicineType([FromBody] MedicineTypeCreateDTO medicineTypeCreateDTO )

@@ -1,4 +1,5 @@
-﻿using MedicalResearch.Domain.Extensions;
+﻿using MedicalResearch.Domain.DTO;
+using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
 using System;
@@ -13,9 +14,11 @@ namespace MedicalResearch.Domain.Interfaces.Service
     {
         Task<Patient> AddPatientAsync(Patient patient);
         Task<bool> DeletePatientAsync(int id);
-        Task<Patient> UpdatePatientAsync(Patient patient);
+        Task<PatientResearchDTO> UpdatePatientAsync(Patient patient);
         Task<Patient?> GetPatientAsync(int id);
         Task<PagedList<Patient>> GetPatientsAsync(Query query);
         Task<Patient?> GetPatientByNumber(string number);
+        Task<PatientResearchDTO?> GetPatientInfo(int id);
+        Task<PagedList<PatientResearchDTO>> GetPatientsInfo(Query query);
     }
 }

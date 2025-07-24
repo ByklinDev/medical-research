@@ -25,6 +25,15 @@ internal class ClinicStockMedicineRepository(MedicalResearchDbContext _context) 
             .FirstOrDefaultAsync(x => (x.ClinicId == clinicId) && (x.MedicineId == medicineId));
     }
 
+    public async Task<ClinicStockMedicine?> GetRandomMedicineAsync(int clinicId, int medicineTypeId)
+    {
+        var medicines = await _dbSet.Where(x => x.Medicine.MedicineTypeId == medicineTypeId && x.ClinicId == clinicId && x.Amount > 0).ToListAsync();
+        Random rand = new Random();
+        int toSkip = rand.Next(0, medicines.Count);
+        var randomMedicine = medicines.OrderBy(x=> Guid.NewGuid()).Skip(toSkip).Take(1).FirstOrDefault();
+        return randomMedicine;
+    }
+
     public async Task<PagedList<ClinicStockMedicine>> SearchByTermAsync(int? clinicId, Query query)
     {
         IQueryable<ClinicStockMedicine> result;

@@ -11,5 +11,7 @@ namespace MedicalResearch.Api.DTO
         public DateTime DateOfBirth { get; set; }
         public Sex Sex { get; set; }
         public PatientStatus Status { get; set; }
+        public DateTime LastVisitDate {  get; set; }
+        public string Medicines { get; set; } = string.Empty;
     }
 }

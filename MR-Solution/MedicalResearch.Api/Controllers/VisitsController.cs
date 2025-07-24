@@ -32,6 +32,18 @@ public class VisitsController(IMapper mapper, IVisitService visitService) : Cont
     }
 
 
+    [HttpGet("Patients/{id}")]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<Visit>))]
+    [PageListFilter<VisitDTO>]
+    public async Task<ActionResult<IEnumerable<VisitDTO>>> GetPatientVisits(int id, [FromQuery] QueryDTO queryDTO)
+    {
+         var query = mapper.Map<Query>(queryDTO);
+        var visits = await visitService.GetPatientVisitsAsync(id, query);
+        var visitDTOs = mapper.Map<List<VisitDTO>>(visits);
+        var pagedDTO = new PagedList<VisitDTO>(visitDTOs, visits.TotalCount, visits.CurrentPage, visits.PageSize);
+        return Ok(pagedDTO);
+    }
+
     // GET api/<VisitController>/5
     [HttpGet("{id}")]
     public async Task<ActionResult<VisitDTO>> GetVisit(int id)
@@ -47,13 +59,13 @@ public class VisitsController(IMapper mapper, IVisitService visitService) : Cont
 
     // POST api/<VisitController>
     [HttpPost]
-    public async Task<ActionResult<VisitDTO>> AddVisit([FromBody] VisitDTO visitDTO)
+    public async Task<ActionResult<VisitDTO>> AddVisit([FromBody] VisitCreateDTO visitCreateDTO)
     {
-        if (visitDTO == null)
+        if (visitCreateDTO == null)
         {
             return BadRequest("Visit data is null");
         }
-        var visit = mapper.Map<Visit>(visitDTO);
+        var visit = mapper.Map<Visit>(visitCreateDTO);
         var createdVisit = await visitService.AddVisitAsync(visit);
         if (createdVisit == null)
         {

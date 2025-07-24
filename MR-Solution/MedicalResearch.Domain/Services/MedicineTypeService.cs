@@ -81,6 +81,19 @@ public class MedicineTypeService(IUnitOfWork unitOfWork, IValidator<MedicineType
         }
     }
 
+    public async Task<MedicineType> GetRandomMedicineTypesAsync()
+    {
+        try
+        {
+            return await unitOfWork.MedicineTypeRepository.GetRandomMedicineTypeAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while retrieving medicine types: {message}", ex.Message);
+            throw new DomainException("Error while retrieving medicine types");
+        }
+    }
+
     public async Task<MedicineType> UpdateMedicineTypeAsync(MedicineType medicineType)
     {
         MedicineType? updated;
