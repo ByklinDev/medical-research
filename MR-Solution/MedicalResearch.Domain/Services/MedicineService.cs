@@ -64,7 +64,7 @@ public class MedicineService(IUnitOfWork unitOfWork, IValidator<Medicine> medici
     {
         try
         {
-            return await unitOfWork.MedicineRepository.GetByIdAsync(id);
+            return await unitOfWork.MedicineRepository.GetMedicineByIdAsync(id);
         }
         catch (Exception ex)
         {

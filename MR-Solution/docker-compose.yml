@@ -26,6 +26,14 @@ services:
         dockerfile:  Dockerfile
     ports: 
       - 4200:80
+
+  frontend2:    
+    image: nginx:alpine       
+    ports: 
+      - 4201:80
+    volumes:
+      - ../MR-Client/nginx.conf:/etc/nginx/conf.d/default.conf # bind your local nginx.conf
+      - ../MR-Client/dist/mr/browser:/usr/share/nginx/html # bind your local app build
   db:
     image: postgres:latest
     container_name: postgres_container

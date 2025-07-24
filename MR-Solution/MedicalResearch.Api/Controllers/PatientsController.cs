@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.Configuration.Annotations;
 using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
 using MedicalResearch.Api.Filters;
-using MedicalResearch.Domain.Extensions;
+using MedicalResearch.Domain.DTO;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
 using MedicalResearch.Domain.Queries;
@@ -26,23 +27,21 @@ public class PatientsController(IMapper mapper, IPatientService patientService )
     public async Task<ActionResult<IEnumerable<PatientDTO>>> GetPatients([FromQuery] QueryDTO queryDTO)
     {
         var query = mapper.Map<Query>(queryDTO);
-        var patients = await patientService.GetPatientsAsync(query);
-        var patientDTOs = mapper.Map<List<PatientDTO>>(patients);
-        var pagedDTO = new PagedList<PatientDTO>(patientDTOs, patients.TotalCount, patients.CurrentPage, patients.PageSize);
-        return Ok(pagedDTO);
+        var patients = await patientService.GetPatientsInfo(query);
+        return Ok(patients);
     }
 
     // GET api/<PatientController>/5
+    [ActionName(nameof(GetPatient))]
     [HttpGet("{id}")]
-    public async Task<ActionResult<PatientDTO>> GetPatient(int id)
+    public async Task<ActionResult<PatientResearchDTO>> GetPatient(int id)
     {
-        var patient = await patientService.GetPatientAsync(id);
+        var patient = await patientService.GetPatientInfo(id);
         if (patient == null)
         {
             return NotFound();
         }
-        var patientDTO = mapper.Map<PatientDTO>(patient);
-        return Ok(patientDTO);
+        return Ok(patient);
     }
 
     // POST api/<PatientController>
@@ -61,7 +60,7 @@ public class PatientsController(IMapper mapper, IPatientService patientService )
 
     // PUT api/<PatientController>/5
     [HttpPut("{id}")]
-    public async Task<ActionResult<PatientDTO>> EditPatient(int id, [FromBody] PatientDTO patientDTO)
+    public async Task<ActionResult<PatientResearchDTO>> EditPatient(int id, [FromBody] PatientUpdateDTO patientDTO)
     {
         if (patientDTO == null || patientDTO.Id != id)
         {
@@ -73,8 +72,7 @@ public class PatientsController(IMapper mapper, IPatientService patientService )
         {
             return NotFound("Patient not found");
         }
-        var updatedPatientDTO = mapper.Map<PatientDTO>(updatedPatient);
-        return Ok(updatedPatientDTO);
+        return Ok(updatedPatient);
     }
 
     // DELETE api/<PatientController>/5

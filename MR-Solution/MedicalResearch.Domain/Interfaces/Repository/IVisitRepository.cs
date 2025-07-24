@@ -14,5 +14,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
         int GetNumberOfNextVisit(int patientId);
         Task<List<Visit>> GetVisitsOfPatient(int patientId);
         Task<PagedList<Visit>> SearchByTermAsync(Query query);
+        Task<PagedList<Visit>> SearchByTermAsync(int patientId, Query query);
     }
 }

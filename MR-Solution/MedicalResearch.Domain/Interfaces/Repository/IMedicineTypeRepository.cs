@@ -13,5 +13,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     {
         Task<MedicineType?> GetMedicineTypeByNameAsync(string name);
         Task<PagedList<MedicineType>> SearchByTermAsync(Query query);
+        Task<MedicineType> GetRandomMedicineTypeAsync();
     }
 }

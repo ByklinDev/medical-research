@@ -19,6 +19,14 @@ internal class MedicineTypeRepository(MedicalResearchDbContext _context) : BaseR
         return await _dbSet.FirstOrDefaultAsync(x => x.Name == name);
     }
 
+    public async Task<MedicineType> GetRandomMedicineTypeAsync()
+    {
+        Random rand = new Random();
+        int toSkip = rand.Next(0,await _dbSet.CountAsync());
+        var medicineType = await _dbSet.OrderBy(x => Guid.NewGuid()).Skip(toSkip).Take(1).FirstAsync();
+        return medicineType;
+    }
+
     public async Task<PagedList<MedicineType>> SearchByTermAsync(Query query)
     {
         return await _dbSet.SearchByTerm(query.SearchTerm).SortSkipTakeAsync(query);

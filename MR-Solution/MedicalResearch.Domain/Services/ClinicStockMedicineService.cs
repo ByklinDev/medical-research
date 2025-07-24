@@ -10,7 +10,6 @@ namespace MedicalResearch.Domain.Services;
 
 public class ClinicStockMedicineService(IUnitOfWork unitOfWork, ILogger<ClinicStockMedicineService> logger) : IClinicStockMedicineService
 {
-
     public async Task<ClinicStockMedicine?> GetClinicStockMedicineByIdAsync(int id)
     {
         try
@@ -20,7 +19,7 @@ public class ClinicStockMedicineService(IUnitOfWork unitOfWork, ILogger<ClinicSt
         catch (Exception ex)
         {
             logger.LogError(ex, "Error retrieving ClinicStockMedicine with id {id}: {message}", id, ex.Message);
-            throw new DomainException($"Error retrieving ClinicStockMedicine with id {id}: {ex.Message}");
+            throw new DomainException($"Error retrieving ClinicStockMedicine with id {id}");
         }
     }
 
@@ -33,7 +32,20 @@ public class ClinicStockMedicineService(IUnitOfWork unitOfWork, ILogger<ClinicSt
         catch (Exception ex)
         {
             logger.LogError(ex, "Error retrieving ClinicStockMedicine for ClinicId {clinicId} and MedicineId {medicineId}: {message}", clinicId, medicineId, ex.Message);
-            throw new DomainException($"Error retrieving ClinicStockMedicine for ClinicId {clinicId} and MedicineId {medicineId}: {ex.Message}");
+            throw new DomainException($"Error retrieving ClinicStockMedicine for ClinicId {clinicId} and MedicineId {medicineId}");
+        }
+    }
+
+    public async Task<ClinicStockMedicine?> GetRandomClinicStockMedicineAsync(int clinicId, int medicineTypeId)
+    {
+        try
+        {
+            return await unitOfWork.ClinicStockMedicineRepository.GetRandomMedicineAsync(clinicId, medicineTypeId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error retrieving ClinicStockMedicine for ClinicId {clinicId} and MedicineId {medicineId}: {message}", clinicId, medicineTypeId, ex.Message);
+            throw new DomainException($"Error retrieving ClinicStockMedicine for ClinicId {clinicId} and MedicineTypeId {medicineTypeId}");
         }
     }
 
@@ -46,7 +58,7 @@ public class ClinicStockMedicineService(IUnitOfWork unitOfWork, ILogger<ClinicSt
         catch (Exception ex)
         {
             logger.LogError(ex, "Error retrieving ClinicStockMedicines for ClinicId {clinicId}: {message}", clinicId, ex.Message);
-            throw new DomainException($"Error retrieving ClinicStockMedicines for ClinicId {clinicId}: {ex.Message}");
+            throw new DomainException($"Error retrieving ClinicStockMedicines for ClinicId {clinicId}");
         }
     }
 
@@ -59,7 +71,7 @@ public class ClinicStockMedicineService(IUnitOfWork unitOfWork, ILogger<ClinicSt
         catch (Exception ex)
         {
             logger.LogError(ex, "Error retrieving ClinicStockMedicines: {message}", ex.Message);
-            throw new DomainException($"Error retrieving ClinicStockMedicines: {ex.Message}");
+            throw new DomainException($"Error retrieving ClinicStockMedicines");
         }
     }
 }

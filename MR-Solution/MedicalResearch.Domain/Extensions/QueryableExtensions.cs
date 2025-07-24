@@ -136,7 +136,7 @@ namespace MedicalResearch.Domain.Extensions
             }
 
             term = term.Trim().ToLower();
-            return query.Where(x => EF.Functions.Like(x.Patient.Number.ToLower(), $"%{term}%"));
+            return query.Where(x => EF.Functions.Like(x.Patient.Number.ToLower(), $"%{term}%")).Include(s => s.Medicine);
         }
 
 
@@ -161,7 +161,7 @@ namespace MedicalResearch.Domain.Extensions
             }
 
             term = term.Trim().ToLower();
-            return query.Where(x => EF.Functions.Like(x.Number.ToLower(), $"%{term}%"));
+            return query.Where(x => EF.Functions.Like(x.Number.ToLower(), $"%{term}%")).Include(y => y.Visits).AsNoTracking();
         }
 
 

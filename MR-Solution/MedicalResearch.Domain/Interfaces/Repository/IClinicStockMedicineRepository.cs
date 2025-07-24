@@ -13,5 +13,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     {
         Task<ClinicStockMedicine?> GetClinicStockMedicineAsync(int clinicId, int medicineId);
         Task<PagedList<ClinicStockMedicine>> SearchByTermAsync(int? clinicId, Query query);
+        Task<ClinicStockMedicine?> GetRandomMedicineAsync(int clinicId, int medicineTypeId);
     }
 }

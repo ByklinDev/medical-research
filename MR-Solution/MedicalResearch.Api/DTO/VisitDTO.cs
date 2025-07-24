@@ -9,6 +9,7 @@ namespace MedicalResearch.Api.DTO
         public int PatientId { get; set; }
         public DateTime DateOfVisit { get; set; }
         public int MedicineId { get; set; }
+        public string MedicineDescription { get; set; } = string.Empty;
         public int NumberOfVisit { get; set; }
         public int UserId { get; set; }
     }

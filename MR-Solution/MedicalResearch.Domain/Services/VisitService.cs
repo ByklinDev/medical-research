@@ -16,10 +16,24 @@ public class VisitService(IUnitOfWork unitOfWork, ILogger<VisitService> logger) 
         int countAdded;
         ClinicStockMedicine? clinicStockMedicineUpdated;
 
-        var medicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(visit.MedicineId, visit.ClinicId) ?? throw new DomainException("Medicine not found");
+        var stockMedicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(visit.ClinicId, visit.MedicineId) ?? throw new DomainException("StockMedicine not found");
+        var medicine = await unitOfWork.MedicineRepository.GetByIdAsync(stockMedicine.MedicineId) ?? throw new DomainException("Medicine not found");
         var clinic = await unitOfWork.ClinicRepository.GetByIdAsync(visit.ClinicId) ?? throw new DomainException("Clinic not found");
         var existedVisits = await unitOfWork.VisitRepository.GetVisitsOfPatient(visit.PatientId);
         var existedVisit = existedVisits.FirstOrDefault(x => x.ClinicId.Equals(visit.ClinicId) && x.DateOfVisit.Equals(visit.DateOfVisit));
+        var patient = await unitOfWork.PatientRepository.GetPatientByIdAsync(visit.PatientId) ?? throw new DomainException("Patient not found");
+        
+        if (patient.Status == Enums.PatientStatus.Finished || patient.Status == Enums.PatientStatus.FinishedEarly)
+        {
+            throw new DomainException("Patient status error");
+        }
+        if (patient.Status == Enums.PatientStatus.Screened)
+        {
+            patient.Status = Enums.PatientStatus.Randomized;
+            patient = unitOfWork.PatientRepository.Update(patient);
+        }
+
+        var user = await unitOfWork.UserRepository.GetByIdAsync(visit.UserId) ?? throw new DomainException("User not found");
         if (existedVisit != null)
         {
             throw new DomainException("Visit already exists");
@@ -28,10 +42,15 @@ public class VisitService(IUnitOfWork unitOfWork, ILogger<VisitService> logger) 
         {
             throw new DomainException("Not enough medicine in stock");
         }
+        visit.Clinic = clinic;
+        visit.Medicine = medicine;
+        visit.DateOfVisit = DateTime.UtcNow;
+        visit.Patient = patient;
+        visit.User = user;
         try
         {
             medicine.Amount -= 1;
-            clinicStockMedicineUpdated = unitOfWork.ClinicStockMedicineRepository.Update(medicine);
+            clinicStockMedicineUpdated = unitOfWork.ClinicStockMedicineRepository.Update(stockMedicine);
 
             var numberOfVisit = unitOfWork.VisitRepository.GetNumberOfNextVisit(visit.PatientId);
             visit.NumberOfVisit = numberOfVisit;
@@ -101,13 +120,26 @@ public class VisitService(IUnitOfWork unitOfWork, ILogger<VisitService> logger) 
         }
     }
 
+    public async Task<PagedList<Visit>> GetPatientVisitsAsync(int patientId, Query query)
+    {
+        try
+        {
+            return await unitOfWork.VisitRepository.SearchByTermAsync(patientId, query);                        
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Visits could not be retrieved: {message}", ex.Message);
+            throw new DomainException("Error while retrieving Visits");
+        }
+    }
+
     public async Task<Visit> UpdateVisitAsync(Visit visit)
     {
         Visit? updated;
         int countUpdated = 0;
 
         var existingVisit = await unitOfWork.VisitRepository.GetByIdAsync(visit.Id) ?? throw new DomainException("Visit not found");
-        var medicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(visit.MedicineId, visit.ClinicId) ?? throw new DomainException("Medicine not found");
+        var medicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(visit.MedicineId, visit.ClinicId) ?? throw new DomainException("StockMedicine not found");
         var existedVisits = await unitOfWork.VisitRepository.GetVisitsOfPatient(visit.PatientId);
         var existedNumber = existedVisits.FirstOrDefault(x => x.ClinicId.Equals(visit.ClinicId) && x.PatientId.Equals(visit.PatientId) && x.NumberOfVisit.Equals(visit.NumberOfVisit));
         if (existedNumber != null)

@@ -16,6 +16,11 @@ internal class PatientRepository(MedicalResearchDbContext _context) : BaseReposi
 
     public async Task<PagedList<Patient>> SearchByTermAsync(Query query)
     {
-        return await _dbSet.SearchByTerm(query.SearchTerm).SortSkipTakeAsync(query);                       
+        return await _dbSet.Include(x => x.Visits).ThenInclude(s => s.Medicine).SearchByTerm(query.SearchTerm).SortSkipTakeAsync(query);
+    }
+
+    public async Task<Patient?> GetPatientByIdAsync(int id)
+    {
+        return await _dbSet.Include(x => x.Visits).FirstOrDefaultAsync(x => x.Id == id);
     }
 }

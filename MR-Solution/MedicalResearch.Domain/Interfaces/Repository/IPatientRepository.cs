@@ -13,5 +13,6 @@ namespace MedicalResearch.Domain.Interfaces.Repository
     {
         Task<Patient?> GetPatientByNumber(string number);
         Task<PagedList<Patient>> SearchByTermAsync(Query query);
+        Task<Patient?> GetPatientByIdAsync(int id);
     }
 }
