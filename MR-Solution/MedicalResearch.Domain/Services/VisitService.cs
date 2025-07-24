@@ -16,8 +16,8 @@ public class VisitService(IUnitOfWork unitOfWork, ILogger<VisitService> logger) 
         int countAdded;
         ClinicStockMedicine? clinicStockMedicineUpdated;
 
-        var medicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(visit.ClinicId, visit.MedicineId) ?? throw new DomainException("Medicine not found");
-        var med = await unitOfWork.MedicineRepository.GetByIdAsync(medicine.MedicineId) ?? throw new DomainException("Medicine not found");
+        var stockMedicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(visit.ClinicId, visit.MedicineId) ?? throw new DomainException("StockMedicine not found");
+        var medicine = await unitOfWork.MedicineRepository.GetByIdAsync(stockMedicine.MedicineId) ?? throw new DomainException("Medicine not found");
         var clinic = await unitOfWork.ClinicRepository.GetByIdAsync(visit.ClinicId) ?? throw new DomainException("Clinic not found");
         var existedVisits = await unitOfWork.VisitRepository.GetVisitsOfPatient(visit.PatientId);
         var existedVisit = existedVisits.FirstOrDefault(x => x.ClinicId.Equals(visit.ClinicId) && x.DateOfVisit.Equals(visit.DateOfVisit));
@@ -43,14 +43,14 @@ public class VisitService(IUnitOfWork unitOfWork, ILogger<VisitService> logger) 
             throw new DomainException("Not enough medicine in stock");
         }
         visit.Clinic = clinic;
-        visit.Medicine = med;
+        visit.Medicine = medicine;
         visit.DateOfVisit = DateTime.UtcNow;
         visit.Patient = patient;
         visit.User = user;
         try
         {
             medicine.Amount -= 1;
-            clinicStockMedicineUpdated = unitOfWork.ClinicStockMedicineRepository.Update(medicine);
+            clinicStockMedicineUpdated = unitOfWork.ClinicStockMedicineRepository.Update(stockMedicine);
 
             var numberOfVisit = unitOfWork.VisitRepository.GetNumberOfNextVisit(visit.PatientId);
             visit.NumberOfVisit = numberOfVisit;
@@ -139,7 +139,7 @@ public class VisitService(IUnitOfWork unitOfWork, ILogger<VisitService> logger) 
         int countUpdated = 0;
 
         var existingVisit = await unitOfWork.VisitRepository.GetByIdAsync(visit.Id) ?? throw new DomainException("Visit not found");
-        var medicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(visit.MedicineId, visit.ClinicId) ?? throw new DomainException("Medicine not found");
+        var medicine = await unitOfWork.ClinicStockMedicineRepository.GetClinicStockMedicineAsync(visit.MedicineId, visit.ClinicId) ?? throw new DomainException("StockMedicine not found");
         var existedVisits = await unitOfWork.VisitRepository.GetVisitsOfPatient(visit.PatientId);
         var existedNumber = existedVisits.FirstOrDefault(x => x.ClinicId.Equals(visit.ClinicId) && x.PatientId.Equals(visit.PatientId) && x.NumberOfVisit.Equals(visit.NumberOfVisit));
         if (existedNumber != null)

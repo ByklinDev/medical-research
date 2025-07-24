@@ -6,7 +6,6 @@ using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
-using MedicalResearch.Domain.Queries;
 using Microsoft.Extensions.Logging;
 using System.Text;
 using Query = MedicalResearch.Domain.Queries.Query;
@@ -114,37 +113,12 @@ public class PatientService(IUnitOfWork unitOfWork, IValidator<Patient> patientV
             updated = unitOfWork.PatientRepository.Update(existingPatient);
             countUpdated = await unitOfWork.SaveAsync();
 
-            var medicines = existingPatient.Visits.Select(x => new { x.MedicineId, x.Medicine.Description }).Distinct().ToList();
-            StringBuilder str = new StringBuilder();
-            int i = 0;
-            foreach (var medicine in medicines)
-            {
-                i++;
-                str.Append(medicine.MedicineId.ToString());
-                str.Append(". ");
-                str.Append(medicine.Description);
-                if (i < medicines.Count)
-                {
-                    str.Append(", ");
-                }
-            }
-
             var lastVisitDate = DateTime.MinValue;
             if (existingPatient.Visits.Count > 0)
             {
                 lastVisitDate = existingPatient.Visits.Max(x => x.DateOfVisit);
             }
-            patientResearchDTO =  new PatientResearchDTO
-            {
-                Id = existingPatient.Id,
-                DateOfBirth = existingPatient.DateOfBirth,
-                Number = existingPatient.Number,
-                Medicines = str.ToString(),
-                LastVisitDate = lastVisitDate,
-                ClinicId = existingPatient.ClinicId,
-                Status = existingPatient.Status,
-                Sex = existingPatient.Sex,
-            };
+            patientResearchDTO = CreatePatientResearchDTO(existingPatient, lastVisitDate);
 
         }
         catch (Exception ex)
@@ -175,23 +149,12 @@ public class PatientService(IUnitOfWork unitOfWork, IValidator<Patient> patientV
         {
             return null;
         }
-        var medicines = patient.Visits.Select(x => new { x.MedicineId, x.Medicine.Description }).Distinct().ToList();
         var lastVisitDate = DateTime.MinValue;
         if (patient.Visits.Count > 0)
         {
             lastVisitDate = patient.Visits.Max(x => x.DateOfVisit);
-        }
-        return new PatientResearchDTO
-        {
-            Id = patient.Id,
-            DateOfBirth = patient.DateOfBirth,
-            Number = patient.Number,
-            Medicines = String.Join(",", medicines),
-            LastVisitDate = lastVisitDate,
-            ClinicId = patient.ClinicId,
-            Sex = patient.Sex,
-            Status = patient.Status,
-        };
+        }    
+        return CreatePatientResearchDTO(patient, lastVisitDate);
     }
 
     public async Task<PagedList<PatientResearchDTO>> GetPatientsInfo(Query query)
@@ -200,40 +163,49 @@ public class PatientService(IUnitOfWork unitOfWork, IValidator<Patient> patientV
         var patients = await unitOfWork.PatientRepository.SearchByTermAsync(query);
         foreach (var patient in patients) 
         {
-            var medicines = patient.Visits.Select(x => new { x.MedicineId, x.Medicine.Description }).Distinct().ToList();
-            StringBuilder str = new StringBuilder();
-            int i = 0;
-            foreach (var medicine in medicines)
-            {
-                i++;
-                str.Append(medicine.MedicineId.ToString());
-                str.Append(". ");
-                str.Append(medicine.Description);
-                if (i < medicines.Count)
-                {
-                    str.Append(", ");
-                }
-            }
-
             var lastVisitDate = DateTime.MinValue;
             if (patient.Visits.Count > 0) 
             {
                 lastVisitDate = patient.Visits.Max(x => x.DateOfVisit);   
-            }
-            result.Add(new PatientResearchDTO
-            {
-                Id = patient.Id,
-                DateOfBirth = patient.DateOfBirth,
-                Number = patient.Number,
-                Medicines = str.ToString(),
-                LastVisitDate = lastVisitDate,
-                ClinicId = patient.ClinicId,
-                Status = patient.Status,
-                Sex = patient.Sex,
-            });        
+            }            
+            result.Add(CreatePatientResearchDTO(patient, lastVisitDate));        
         }
 
         var paged = new PagedList<PatientResearchDTO>(result, patients.TotalCount, patients.CurrentPage, patients.PageSize);
         return paged;
     }
+
+    private static string GetAllPatientMedicines(List<Visit> visits)
+    {
+        var medicines = visits.Select(x => new { x.MedicineId, x.Medicine.Description }).Distinct().ToList();
+        StringBuilder str = new StringBuilder();
+        int i = 0;
+        foreach (var medicine in medicines)
+        {
+            i++;
+            str.Append(medicine.MedicineId.ToString());
+            str.Append(". ");
+            str.Append(medicine.Description);
+            if (i < medicines.Count)
+            {
+                str.Append(", ");
+            }
+        }
+        return str.ToString();
+    }
+
+    private static PatientResearchDTO CreatePatientResearchDTO(Patient patient, DateTime lastVisitDate)
+    {
+        return new PatientResearchDTO
+        {
+            Id = patient.Id,
+            DateOfBirth = patient.DateOfBirth,
+            Number = patient.Number,
+            Medicines = GetAllPatientMedicines(patient.Visits),
+            LastVisitDate = lastVisitDate,
+            ClinicId = patient.ClinicId,
+            Status = patient.Status,
+            Sex = patient.Sex,
+        };
+    } 
 }   
