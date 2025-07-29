@@ -5,6 +5,7 @@ using MedicalResearch.Api.DTOValidators;
 using MedicalResearch.Api.Filters;
 using MedicalResearch.Domain.DTO;
 using MedicalResearch.Domain.Enums;
+using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
@@ -21,7 +22,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
 {
     [Authorize]
     // GET: api/<UserController>
-    [HttpGet]
+     [HttpGet]
     [ServiceFilter(typeof(QueryDTOValidatorFilter<User>))]
     [PageListFilter<UserDTO>]
     public async Task<ActionResult<List<UserDTO>>> GetUsers([FromQuery] QueryDTO queryDTO)
@@ -32,6 +33,20 @@ public class UsersController(IUserService userService, IRoleService roleService,
         var pagedDTO = new PagedList<UserDTO>(userDTOs, users.TotalCount, users.CurrentPage, users.PageSize);
         return Ok(pagedDTO);
     }
+
+
+    [HttpGet("Roles")]
+    [ServiceFilter(typeof(QueryDTOValidatorFilter<User>))]
+    [PageListFilter<UserRoleDTO>]
+    public async Task<ActionResult<List<UserRoleDTO>>> GetUsersRoles([FromQuery] QueryDTO queryDTO)
+    {
+        var query = mapper.Map<Query>(queryDTO);
+        var users = await userService.GetUsersAsync(query);
+        var userDTOs = mapper.Map<List<UserRoleDTO>>(users);
+        var pagedDTO = new PagedList<UserRoleDTO>(userDTOs, users.TotalCount, users.CurrentPage, users.PageSize);
+        return Ok(pagedDTO);
+    }
+
 
 
     // GET api/<UserController>/5
@@ -53,20 +68,20 @@ public class UsersController(IUserService userService, IRoleService roleService,
         var validationResult = userValidator.Validate(userDTO);
         if (!validationResult.IsValid)
         {
-            return BadRequest(validationResult.Errors[0].ToString());
+            throw new DomainException(validationResult.Errors[0].ToString());
         }
         var user = mapper.Map<User>(userDTO);
         user.State = UserState.Active;
         var createdUser = await userService.AddUserAsync(user);
         if (createdUser == null)
         {
-            return BadRequest("User not created");
+            throw new DomainException("User not created");
         }
         return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, mapper.Map<UserDTO>(createdUser));
     }
 
     [Authorize]
-    [HttpPut("{userId}/Roles/{roleId}")]
+    [HttpPost("{userId}/Roles/{roleId}")]
     public async Task<ActionResult> AddUserRole(int userId, int roleId)
     {
         var user = await userService.GetUserAsync(userId);
@@ -86,6 +101,9 @@ public class UsersController(IUserService userService, IRoleService roleService,
         }
         return Ok();
     }
+
+
+
     [Authorize]
     // PUT api/<UserController>/5
     [HttpPut("{id}")]
@@ -93,18 +111,18 @@ public class UsersController(IUserService userService, IRoleService roleService,
     {
         if (id != userDTO.Id)
         {
-            return BadRequest("User ID mismatch");
+            throw new DomainException("User ID mismatch");
         }
         var validationResult = updateValidator.Validate(userDTO);
         if (!validationResult.IsValid)
         {
-            return BadRequest(validationResult.Errors[0].ToString());
+            throw new DomainException(validationResult.Errors[0].ToString());
         }
 
         var updatedUser = await userService.UpdateUserAsync(userDTO);
         if (updatedUser == null)
         {
-            return NotFound();
+            throw new DomainException("User wsa not updated");
         }
 
         return Ok(mapper.Map<UserDTO>(updatedUser));

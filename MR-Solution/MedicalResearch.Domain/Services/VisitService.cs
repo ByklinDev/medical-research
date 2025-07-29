@@ -38,7 +38,7 @@ public class VisitService(IUnitOfWork unitOfWork, ILogger<VisitService> logger) 
         {
             throw new DomainException("Visit already exists");
         }
-        if (medicine.Amount <= 0)
+        if (stockMedicine.Amount <= 0)
         {
             throw new DomainException("Not enough medicine in stock");
         }
@@ -49,7 +49,7 @@ public class VisitService(IUnitOfWork unitOfWork, ILogger<VisitService> logger) 
         visit.User = user;
         try
         {
-            medicine.Amount -= 1;
+            stockMedicine.Amount -= 1;
             clinicStockMedicineUpdated = unitOfWork.ClinicStockMedicineRepository.Update(stockMedicine);
 
             var numberOfVisit = unitOfWork.VisitRepository.GetNumberOfNextVisit(visit.PatientId);

@@ -1,4 +1,3 @@
-using System.Reflection;
 using FluentValidation;
 using MedicalResearch.Api;
 using MedicalResearch.Api.DTO;
@@ -15,7 +14,6 @@ using MedicalResearch.Domain.Services;
 using MedicalResearch.Domain.Validations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection(nameof(EmailConfiguration)));
 //builder.Services.AddSwaggerGen();
 builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection(nameof(JwtConfiguration)));
 
@@ -71,6 +70,7 @@ builder.Services.AddScoped<IValidator<UserCreateDTO>, CreateUserDTOValidator>();
 builder.Services.AddScoped<IValidator<UserUpdateDTO>, UserUpdateDTOValidator>();
 builder.Services.AddScoped<IValidator<Supply>, SupplyValidator>();
 builder.Services.AddScoped<IValidator<SupplyCreateDTO>, SupplyCreateDTOValidator>();
+builder.Services.AddScoped<IValidator<EmailCreateDTO>, EmailCreateDTOValidator>();
 
 builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Clinic>>();
 builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<User>>();
@@ -83,6 +83,7 @@ builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Supply>>();
 builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Visit>>();
 builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<Patient>>();
 builder.Services.AddScoped<IValidator<QueryDTO>, QueryDTOValidator<ClinicStockMedicine>>();
+
 
 builder.Services.AddScoped<QueryDTOValidatorFilter<MedicineContainer>>();
 builder.Services.AddScoped<QueryDTOValidatorFilter<Medicine>>();
@@ -109,6 +110,7 @@ builder.Services.AddScoped<ISupplyService, SupplyService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
 builder.Services.AddScoped<ITokensService, TokensService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 DALRegistrator.RegisterService(builder.Services, builder.Configuration, builder.Environment.IsDevelopment());
 
@@ -118,6 +120,7 @@ builder.Services.AddCors(setup =>
     setup.AddPolicy("FrontendCors",
         policy => policy.WithOrigins(frontendUrl)
                         .AllowAnyHeader()
+                        .WithExposedHeaders("X-Pagination")
                         .AllowAnyMethod()
         );
 });
@@ -147,9 +150,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    // app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseMiddleware<ExceptionMiddleware>();
 }
 else
 {

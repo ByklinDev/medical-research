@@ -9,7 +9,7 @@ namespace MedicalResearch.Api.Controllers;
 
 [Route("api/auth")]
 [ApiController]
-public class AuthorizationController(ITokensService tokensService, IUserService userService) : ControllerBase
+public class AuthorizationController(ITokensService tokensService, IUserService userService) :ControllerBase
 {
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)

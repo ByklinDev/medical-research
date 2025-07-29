@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
@@ -8,13 +9,12 @@ using MedicalResearch.Domain.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace MedicalResearch.Api.Controllers;
 
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
-public class ClinicStockMedicinesController(IMapper mapper, IClinicStockMedicineService clinicStockMedicineService) : ControllerBase
+public class ClinicStockMedicinesController(IMapper mapper, IClinicStockMedicineService clinicStockMedicineService, IMedicineTypeService medicineTypeService, IClinicService clinicService) : ControllerBase
 {
     // GET: api/<ClinicStockMedicineController>
     [HttpGet]
@@ -73,7 +73,9 @@ public class ClinicStockMedicinesController(IMapper mapper, IClinicStockMedicine
         var clinicStockMedicine = await clinicStockMedicineService.GetRandomClinicStockMedicineAsync(clinicId, medicineTypeId);
         if (clinicStockMedicine == null)
         {
-            return NotFound();
+            var medicineType = await medicineTypeService.GetMedicineTypeAsync(medicineTypeId);
+            var clinic = await clinicService.GetClinicAsync(clinicId);           
+            throw new DomainException($"Error retrieving medicines of type {medicineType?.Name} from stock of clinic {clinic?.Name}");
         }
         var clinicStockMedicineDTO = mapper.Map<ClinicStockMedicineDTO>(clinicStockMedicine);
         return Ok(clinicStockMedicineDTO);
