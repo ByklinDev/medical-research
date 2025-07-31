@@ -122,7 +122,7 @@ public class UsersController(IUserService userService, IRoleService roleService,
         var updatedUser = await userService.UpdateUserAsync(userDTO);
         if (updatedUser == null)
         {
-            throw new DomainException("User wsa not updated");
+            throw new DomainException("User was not updated");
         }
 
         return Ok(mapper.Map<UserDTO>(updatedUser));

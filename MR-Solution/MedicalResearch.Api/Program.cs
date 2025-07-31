@@ -114,14 +114,17 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 DALRegistrator.RegisterService(builder.Services, builder.Configuration, builder.Environment.IsDevelopment());
 
-var frontendUrl = builder.Configuration.GetValue<string>("FrontendUrl") ?? "https://localhost:4200";
+var frontendUrl = builder.Configuration.GetValue<string>("FrontendUrl") ?? "https://hph7xq2b-4200.euw.devtunnels.ms";
+
 builder.Services.AddCors(setup =>
 {
     setup.AddPolicy("FrontendCors",
         policy => policy.WithOrigins(frontendUrl)
-                        .AllowAnyHeader()
-                        .WithExposedHeaders("X-Pagination")
-                        .AllowAnyMethod()
+                        .AllowAnyHeader().AllowAnyMethod()
+                        .WithHeaders("Access-Control-Allow-Origin")
+                        .WithExposedHeaders("X-Pagination", "Access-Control-Allow-Origin")
+
+                        
         );
 });
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -153,12 +156,10 @@ if (app.Environment.IsDevelopment())
     // app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseMiddleware<ExceptionMiddleware>();
 }
-else
-{
-    app.UseMiddleware<ExceptionMiddleware>();
-}
+
+app.UseMiddleware<ExceptionMiddleware>();
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<MedicalResearchDbContext>();
