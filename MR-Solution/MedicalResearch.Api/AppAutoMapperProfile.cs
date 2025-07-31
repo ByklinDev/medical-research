@@ -11,6 +11,8 @@ public class AppAutoMapperProfile : Profile
     public AppAutoMapperProfile()
     {
         CreateMap<User, UserDTO>();
+        CreateMap<User, UserRoleDTO>().ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Roles[0].Id))
+            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Roles[0].Name));
         CreateMap<UserDTO, User>();
         CreateMap<UserCreateDTO, User>();
         CreateMap<UserUpdateDTO, User>();

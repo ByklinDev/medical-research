@@ -3,6 +3,7 @@ using FluentValidation;
 using MedicalResearch.Api.DTO;
 using MedicalResearch.Api.DTOValidators;
 using MedicalResearch.Api.Filters;
+using MedicalResearch.Domain.Exceptions;
 using MedicalResearch.Domain.Extensions;
 using MedicalResearch.Domain.Interfaces.Service;
 using MedicalResearch.Domain.Models;
@@ -120,7 +121,7 @@ public class SuppliesController(IMapper mapper,
         var supply = await supplyService.GetSupplyAsync(id);
         if (supply == null)
         {
-            return NotFound();
+            throw new DomainException($"Not found supply with id: {id}");
         }
         var supplyDTO = mapper.Map<SupplyDTO>(supply);
 
@@ -134,23 +135,23 @@ public class SuppliesController(IMapper mapper,
         var resultSupplyCreateValidation = supplyCreateValidator.Validate(supplyCreateDTO);
         if (!resultSupplyCreateValidation.IsValid)
         {
-            return BadRequest(resultSupplyCreateValidation.Errors);
+            throw new DomainException(resultSupplyCreateValidation.Errors[0].ErrorMessage);
         }
         var medicine = await medicineService.GetMedicineAsync(supplyCreateDTO.MedicineId);
         if (medicine == null)
         {
-            return NotFound("Medicine not found");
+            throw new DomainException($"Medicine id: {supplyCreateDTO.MedicineId} not found");
         }
         var resultMedicineValidation = await medicineValidator.ValidateAsync(medicine);
         if (!resultMedicineValidation.IsValid)
         {
-            return BadRequest(resultMedicineValidation.Errors);
+            throw new DomainException(resultMedicineValidation.Errors[0].ErrorMessage);
         }
         var supply = await supplyService.AddToSupply(medicine, supplyCreateDTO.Amount, supplyCreateDTO.ClinicId, supplyCreateDTO.UserId);
         var resultSupplyValidation = await supplyValidator.ValidateAsync(supply);
         if (!resultSupplyValidation.IsValid)
         {
-            return BadRequest(resultSupplyValidation.Errors);
+            throw new DomainException(resultSupplyValidation.Errors[0].ErrorMessage);
         }
         supply.Medicine = medicine;
         var clinic = await clinicService.GetClinicAsync(supply.ClinicId);
@@ -172,7 +173,7 @@ public class SuppliesController(IMapper mapper,
         var supplyDTOsResult = addedSupplies.Select(mapper.Map<Supply, SupplyDTO>).ToList();
         if (supplyDTOsResult == null || !supplyDTOsResult.Any())
         {
-            return BadRequest("No supplies were added.");
+            throw new DomainException("No supplies were added.");
         }
         return CreatedAtAction(nameof(GetSuppliesAsync), supplyDTOsResult);
     }
@@ -183,18 +184,18 @@ public class SuppliesController(IMapper mapper,
     {
         if (id != supplyDTO.Id)
         {
-            return BadRequest("Supply ID mismatch.");
+            throw new DomainException($"Supply ID mismatch {id} vs {supplyDTO.Id}.");
         }
         var supply = mapper.Map<Supply>(supplyDTO);
         var resultSupplyValidation = supplyValidator.Validate(supply);
         if (!resultSupplyValidation.IsValid)
         {
-            return BadRequest(resultSupplyValidation.Errors);
+            throw new DomainException(resultSupplyValidation.Errors[0].ErrorMessage);
         }
         var updatedSupply = await supplyService.UpdateSupplyAsync(supply);
         if (updatedSupply == null)
         {
-            return NotFound();
+            throw new DomainException("Supply was not updated");
         }
         var updatedSupplyDTO = mapper.Map<SupplyDTO>(updatedSupply);
         return Ok(updatedSupplyDTO);
@@ -207,12 +208,12 @@ public class SuppliesController(IMapper mapper,
         var supply = await supplyService.GetSupplyAsync(id);
         if (supply == null)
         {
-            return NotFound();
+            throw new DomainException($"Supply with id: {id} not found");
         }
         var isDeleted = await supplyService.DeleteSupplyAsync(id);
         if (!isDeleted)
         {
-            return BadRequest("Failed to delete supply.");
+            throw new DomainException("Failed to delete supply.");
         }
         return Ok(isDeleted);
     }

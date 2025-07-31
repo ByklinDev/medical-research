@@ -20,6 +20,6 @@ internal class UserRepository(MedicalResearchDbContext _context): BaseRepository
     }
     public async Task<PagedList<User>> SearchByTermAsync(Query query)
     {
-        return await _dbSet.SearchByTerm(query.SearchTerm).SortSkipTakeAsync(query);
+        return await _dbSet.Include(x => x.Roles).SearchByTerm(query.SearchTerm).SortSkipTakeAsync(query);
     }
 }
