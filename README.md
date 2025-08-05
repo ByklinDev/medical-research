@@ -49,7 +49,7 @@ This ASP.NET Web API application is designed to monitor experimental medicines d
 3. Configure the database connection string in `appsettings.json`:
    ```json
    "ConnectionStrings": {
-     "DefaultConnection": "Server=your-server;Database=ClinicalTrialsDB;Trusted_Connection=True;"
+     "DefaultConnection": "Host=your_server;Port=5432;Database=medresearchdb;Username=your_username;Password=your_userpassword"
    }
    ```
 
@@ -163,6 +163,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 For questions or support, please contact:
-[Your Name] - [your.email@example.com]
+[Nick] - [byklin@list.ru]
 
-Project Link: [https://github.com/your-username/clinical-trials-medicine-monitor](https://github.com/your-username/clinical-trials-medicine-monitor)
+Project Link: [https://github.com/ByklinDev/medical-research](https://github.com/ByklinDev/medical-research)
