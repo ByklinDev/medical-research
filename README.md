@@ -38,7 +38,7 @@ This ASP.NET Web API application is designed to monitor experimental medicines d
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/clinical-trials-medicine-monitor.git
+   git clone https://github.com/ByklinDev/medical-research.git
    ```
 
 2. Navigate to the project directory:
