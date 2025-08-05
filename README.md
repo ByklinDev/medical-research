@@ -73,17 +73,53 @@ https://localhost:5001/swagger
 
 ## Project Structure
 
+I'll help you create a `README.md` section for the project structure based on the repository at [https://github.com/ByklinDev/medical-research](https://github.com/ByklinDev/medical-research). Here's the project structure section you can include in your README:
+
+## Project Structure
+
 ```
-ClinicalTrialsMedicineMonitor/
-├── Controllers/         # API controllers
-├── Models/             # Data models and DTOs
-├── Services/           # Business logic services
-├── Repositories/       # Data access layer
-├── Migrations/         # Database migrations
-├── wwwroot/            # Static files
-├── appsettings.json    # Configuration
-└── Program.cs          # Application entry point
+medical-research/
+├── MedicalResearch/
+│   ├── Business/                  # Business logic layer
+│   │   ├── Services/              # Service implementations
+│   │   ├── Validators/            # FluentValidation validators
+│   │   └── ViewModels/            # View models and DTOs
+│   ├── Data/                      # Data access layer
+│   │   ├── Context/               # DbContext and database config
+│   │   ├── Entities/              # Entity classes
+│   │   ├── Enums/                 # Enum definitions
+│   │   └── Migrations/            # Entity Framework migrations
+│   ├── Extensions/                # Extension methods
+│   ├── Middlewares/               # Custom middlewares
+│   ├── Properties/               # Project properties
+│   ├── Resources/                 # Resource files
+│   ├── wwwroot/                  # Static files
+│   ├── appsettings.json          # Configuration file
+│   ├── Program.cs                # Application entry point
+│   └── Startup.cs                # Startup configuration
+├── MedicalResearch.API/           # Web API project
+│   ├── Controllers/              # API controllers
+│   ├── Properties/               # Project properties
+│   ├── appsettings.json         # API configuration
+│   ├── Program.cs               # API entry point
+│   └── Startup.cs               # API startup config
+├── MedicalResearch.Tests/        # Unit tests project
+│   ├── BusinessTests/           # Business logic tests
+│   ├── ControllerTests/         # API controller tests
+│   └── ServiceTests/            # Service layer tests
+├── .gitignore                   # Git ignore rules
+├── LICENSE                      # License file
+└── README.md                    # Project documentation
 ```
+
+Key Components:
+- **Business Layer**: Contains all business logic, validations, and view models
+- **Data Layer**: Handles database operations, entities, and migrations
+- **API Layer**: RESTful endpoints for client applications
+- **Tests**: Unit tests for all major components
+
+This structure follows a clean architecture approach with clear separation of concerns between the data access, business logic, and presentation layers.
+
 
 ## Authentication
 
